@@ -107,17 +107,17 @@ CREATE TABLE public.faq (
 -- Permissões
 -- -----------------------------------------------------
 
--- Ajuste o 'ti2cc' para o seu nome de usuário do pgAdmin se for diferente
-ALTER TABLE public.niveis_trilha OWNER TO ti2cc;
-ALTER TABLE public.usuarios OWNER TO ti2cc;
-ALTER TABLE public.questionario_diagnostico OWNER TO ti2cc;
-ALTER TABLE public.quizzes OWNER TO ti2cc;
-ALTER TABLE public.perguntas OWNER TO ti2cc;
-ALTER TABLE public.opcoes_pergunta OWNER TO ti2cc;
-ALTER TABLE public.forum_topicos OWNER TO ti2cc;
-ALTER TABLE public.forum_comentarios OWNER TO ti2cc;
-ALTER TABLE public.investimentos OWNER TO ti2cc;
-ALTER TABLE public.faq OWNER TO ti2cc;
+-- Ajuste o 'wise' para o seu nome de usuário do pgAdmin se for diferente
+ALTER TABLE public.niveis_trilha OWNER TO wise;
+ALTER TABLE public.usuarios OWNER TO wise;
+ALTER TABLE public.questionario_diagnostico OWNER TO wise;
+ALTER TABLE public.quizzes OWNER TO wise;
+ALTER TABLE public.perguntas OWNER TO wise;
+ALTER TABLE public.opcoes_pergunta OWNER TO wise;
+ALTER TABLE public.forum_topicos OWNER TO wise;
+ALTER TABLE public.forum_comentarios OWNER TO wise;
+ALTER TABLE public.investimentos OWNER TO wise;
+ALTER TABLE public.faq OWNER TO wise;
 
 --
 -- PostgreSQL database dump complete
