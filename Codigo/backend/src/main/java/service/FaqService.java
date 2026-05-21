@@ -40,6 +40,9 @@ public class FaqService {
         Faq faq = faqDAO.get(id);
 
         if (faq != null) {
+             // REGISTRA ACESSO
+            faqDAO.registrarAcesso(id);
+            
             response.status(200);
 
             return "Pergunta: " + faq.getPergunta()
