@@ -181,4 +181,24 @@ public class FaqDAO extends DAO {
 
         return status;
     }
+ // REGISTRAR ACESSO À FAQ
+    public void registrarAcesso(int id) {
+
+        try {
+
+            String sql =
+                "UPDATE faq SET acessos = acessos + 1 WHERE id = ?";
+
+            PreparedStatement st = conexao.prepareStatement(sql);
+
+            st.setInt(1, id);
+
+            st.executeUpdate();
+
+            st.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

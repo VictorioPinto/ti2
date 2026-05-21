@@ -14,7 +14,7 @@ public class Aplicacao {
 
     public static void main(String[] args) {
         // Define a porta do servidor
-        port(8080); 
+        port(8081); 
 
         // Configura o Spark para servir arquivos estáticos (frontend)
         // Certifique-se de que sua pasta 'frontend' está em src/main/resources/public
