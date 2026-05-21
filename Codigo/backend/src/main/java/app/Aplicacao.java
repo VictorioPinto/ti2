@@ -1,6 +1,8 @@
 package app;
 
 import static spark.Spark.*;
+
+import service.FaqService;
 import service.TrilhaService;
 import service.UsuarioService;
 
@@ -8,6 +10,7 @@ public class Aplicacao {
     // Ambas as instâncias de serviço devem ser estáticas para serem usadas no main
     private static UsuarioService usuarioService = new UsuarioService();
     private static TrilhaService trilhaService = new TrilhaService();
+    private static FaqService faqService = new FaqService();
 
     public static void main(String[] args) {
         // Define a porta do servidor
@@ -33,6 +36,23 @@ public class Aplicacao {
 
         // Avança o nível do usuário após completar um quiz
         post("/trilha/avancar", (request, response) -> trilhaService.avancarNivel(request, response));
+       
+        // --- Rotas FAQ ---
+
+        post("/faq/insert", (request, response) ->
+            faqService.insert(request, response));
+
+        get("/faq/:id", (request, response) ->
+            faqService.get(request, response));
+
+        get("/faq/listar", (request, response) ->
+            faqService.listar(request, response));
+
+        put("/faq/update/:id", (request, response) ->
+            faqService.update(request, response));
+
+        delete("/faq/delete/:id", (request, response) ->
+            faqService.delete(request, response));
         
         System.out.println("Servidor Wise Capital rodando em http://localhost:8080");
     }
