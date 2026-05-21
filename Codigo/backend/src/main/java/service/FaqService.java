@@ -1,4 +1,5 @@
 package service;
+import com.google.gson.Gson;
 
 import dao.FaqDAO;
 import model.Faq;
@@ -61,22 +62,11 @@ public class FaqService {
 
         List<Faq> faqs = faqDAO.get();
 
-        StringBuilder retorno = new StringBuilder();
+        response.type("application/json");
 
-        for (Faq faq : faqs) {
+        Gson gson = new Gson();
 
-            retorno.append("ID: ")
-                   .append(faq.getId())
-                   .append("\nPergunta: ")
-                   .append(faq.getPergunta())
-                   .append("\nResposta: ")
-                   .append(faq.getResposta())
-                   .append("\n------------------\n");
-        }
-
-        response.status(200);
-
-        return retorno.toString();
+        return gson.toJson(faqs);
     }
 
     /**

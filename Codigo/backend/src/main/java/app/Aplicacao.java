@@ -37,16 +37,17 @@ public class Aplicacao {
         // Avança o nível do usuário após completar um quiz
         post("/trilha/avancar", (request, response) -> trilhaService.avancarNivel(request, response));
        
-        // --- Rotas FAQ ---
+     // --- Rotas FAQ ---
 
         post("/faq/insert", (request, response) ->
             faqService.insert(request, response));
 
-        get("/faq/:id", (request, response) ->
-            faqService.get(request, response));
-
         get("/faq/listar", (request, response) ->
             faqService.listar(request, response));
+
+        // DEIXA O :id DEPOIS
+        get("/faq/:id", (request, response) ->
+            faqService.get(request, response));
 
         put("/faq/update/:id", (request, response) ->
             faqService.update(request, response));
