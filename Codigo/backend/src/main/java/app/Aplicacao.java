@@ -5,6 +5,8 @@ import static spark.Spark.*;
 import service.FaqService;
 import service.TrilhaService;
 import service.UsuarioService;
+import model.ForumTopico;
+import service.ForumService;
 
 public class Aplicacao {
     // Ambas as instâncias de serviço devem ser estáticas para serem usadas no main
@@ -54,6 +56,14 @@ public class Aplicacao {
 
         get("/faq/delete/:id", (request, response) ->
             faqService.delete(request, response));
+        
+        //---------rota foruns----------
+        ForumService forumService = new ForumService();
+
+     // Ativando as rotas do fórum
+     post("/forum", (req, res) -> forumService.insert(req, res));
+     
+     get("/forum", (req, res) -> forumService.listarTodos(req, res));
         
         System.out.println("Servidor Wise Capital rodando em http://localhost:8080");
     }
