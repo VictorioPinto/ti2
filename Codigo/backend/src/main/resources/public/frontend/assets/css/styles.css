@@ -117,4 +117,60 @@ body {
   padding: 40px;
   width: calc(100% - var(--sidebar-width));
   box-sizing: border-box;
+
+}
+/* FAQ */
+
+.faq-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.faq-card h3 {
+  margin-top: 0;
+  color: var(--primary-blue);
+}
+
+.faq-card p {
+  color: #333;
+  line-height: 1.5;
+}
+.faq-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.faq-form input,
+.faq-form textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.faq-form button,
+.faq-card button {
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.faq-card button {
+  margin-top: 10px;
+}
+.faq-card button {
+  margin-top: 10px;
+  background: crimson;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
 }

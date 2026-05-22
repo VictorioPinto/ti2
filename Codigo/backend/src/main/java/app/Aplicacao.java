@@ -52,7 +52,7 @@ public class Aplicacao {
         put("/faq/update/:id", (request, response) ->
             faqService.update(request, response));
 
-        delete("/faq/delete/:id", (request, response) ->
+        get("/faq/delete/:id", (request, response) ->
             faqService.delete(request, response));
         
         System.out.println("Servidor Wise Capital rodando em http://localhost:8080");
