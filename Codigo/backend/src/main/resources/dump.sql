@@ -33,7 +33,8 @@ CREATE TABLE public.usuarios (
     email VARCHAR(100) UNIQUE NOT NULL,
     streak_days INTEGER DEFAULT 0, -- Sistema de ofensiva
     nivel_atual_id INTEGER DEFAULT 1 REFERENCES public.niveis_trilha(id),
-    data_ultimo_acesso TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    data_ultimo_acesso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    adm BOOLEAN DEFAULT FALSE -- Flag de administrador
 );
 
 -- Tabela: questionario_diagnostico (Para a IA analisar)
@@ -53,11 +54,13 @@ CREATE TABLE public.quizzes (
 );
 
 -- Tabela: perguntas
+-- Tabela: perguntas
 CREATE TABLE public.perguntas (
     id SERIAL PRIMARY KEY,
     quiz_id INTEGER REFERENCES public.quizzes(id),
     pergunta TEXT NOT NULL,
-    correta INTEGER NOT NULL,
+    tipo VARCHAR(20) DEFAULT 'FECHADA',
+    correta INTEGER, 
     explicacao TEXT
 );
 

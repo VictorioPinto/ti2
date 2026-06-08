@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wise Capital</title>
-    <link rel="stylesheet" href="./assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <script type="module" src="../../js/modules/sidebar.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -13,7 +14,7 @@
   <body>
     <nav class="sidebar">
       <div class="sidebar-header">
-        <img src="./assets/img/logoazul.jpg" alt="Logo Wise Capital" />
+        <img src="../../assets/img/logoazul.jpg" alt="Logo Wise Capital" />
         <h2>Wise Capital</h2>
       </div>
 
@@ -55,8 +56,12 @@
     </nav>
 
     <main class="main-content">
-      <h1>Trilha de Conhecimento</h1>
-      <ul id="lista-niveis"></ul>
+      <h1>Sua Trilha de Conhecimento</h1>
+      <p>Avance pelos níveis para desbloquear novos conteúdos.</p>
+      
+      <div id="quiz-container" class="quiz-grid"></div>
+      
     </main>
+    <script type="module" src="../../js/modules/trilha.js"></script>
   </body>
 </html>

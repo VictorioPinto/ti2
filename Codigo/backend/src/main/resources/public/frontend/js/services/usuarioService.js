@@ -19,4 +19,15 @@ export const usuarioService = {
     });
     return response;
   },
+
+  // --- NOVAS FUNÇÕES ---
+  async getUsuarioAtual() {
+    const response = await fetch(`${API_URL}/atual`);
+    return response;
+  },
+
+  async logout() {
+    const response = await fetch(`${API_URL}/logout`, { method: "POST" });
+    return response;
+  }
 };

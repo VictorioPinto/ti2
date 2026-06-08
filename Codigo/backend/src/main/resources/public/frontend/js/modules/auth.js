@@ -18,7 +18,7 @@ goToLogin.addEventListener("click", (e) => {
   loginForm.classList.remove("hidden");
 });
 
-// Lógica de Login
+
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const login = loginForm.login.value;
@@ -26,20 +26,31 @@ loginForm.addEventListener("submit", async (e) => {
 
   try {
     const response = await usuarioService.login(login, senha);
-    const result = await response.text();
+    
+    
+    const result = await response.json(); 
 
-    if (response.ok) {
-      alert(result);
-      window.location.href = "../trilha/index.html";
+    if (response.ok && result.success) {
+      alert("Bem-vindo, " + result.nome + "!");
+
+      
+      if (result.primeiroAcesso) {
+        
+        window.location.href = "../trilha/formia/index.html"; 
+      } else {
+        
+        window.location.href = "../trilha/index.html";
+      }
     } else {
-      alert(result);
+      alert(result.message || "Erro ao realizar o login.");
     }
   } catch (error) {
     console.error("Erro no login:", error);
+    alert("Ocorreu um erro interno de comunicação com o servidor.");
   }
 });
 
-// Lógica de Registro
+
 registerForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const dados = {
@@ -55,7 +66,7 @@ registerForm.addEventListener("submit", async (e) => {
 
     if (response.ok) {
       alert(result);
-      location.reload(); // Volta para o login
+      location.reload();
     } else {
       alert(result);
     }

@@ -10,8 +10,6 @@ public class TrilhaDAO extends DAO {
         super();
         conectar();
     }
-
-    // Procura todos os níveis da trilha para exibir no frontend
     public List<NivelTrilha> getAllNiveis() {
         List<NivelTrilha> niveis = new ArrayList<>();
         try {
@@ -27,8 +25,6 @@ public class TrilhaDAO extends DAO {
         }
         return niveis;
     }
-
-    // Atualiza o nível do utilizador no banco de dados quando ele completa um quiz
     public boolean atualizarNivelUsuario(int usuarioId, int novoNivel) {
         boolean status = false;
         try {

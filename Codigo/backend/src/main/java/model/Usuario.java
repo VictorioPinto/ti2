@@ -2,7 +2,6 @@ package model;
 
 public class Usuario {
     
-    // Atributos da classe
     private int id;
     private String login;
     private String senha;
@@ -10,12 +9,12 @@ public class Usuario {
     private String email;
     private int streakDays;
     private int nivelAtualId;
-    // Construtor padrão (vazio)
+    private boolean adm; 
     public Usuario() {
     }
 
-    // Construtor com todos os parâmetros
-    public Usuario(int id, String login, String senha, String nome, String email, int streakDays, int nivelAtualId) {
+   
+    public Usuario(int id, String login, String senha, String nome, String email, int streakDays, int nivelAtualId, boolean adm) {
         this.id = id;
         this.login = login;
         this.senha = senha;
@@ -23,63 +22,30 @@ public class Usuario {
         this.email = email;
         this.streakDays = streakDays;
         this.nivelAtualId = nivelAtualId;
+        this.adm = adm;
     }
-
     // --- Getters e Setters ---
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public int getId() {
-        return id;
-    }
+    public String getLogin() { return login; }
+    public void setLogin(String login) { this.login = login; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
 
-    public String getLogin() {
-        return login;
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getSenha() {
-        return senha;
-    }
+    public int getStreakDays() { return streakDays; }
+    public void setStreakDays(int streakDays) { this.streakDays = streakDays; }
 
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
+    public int getNivelAtualId() { return nivelAtualId; }
+    public void setNivelAtualId(int nivelAtualId) { this.nivelAtualId = nivelAtualId; }
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public int getStreakDays() {
-        return streakDays;
-    }
-
-    public void setStreakDays(int streakDays) {
-        this.streakDays = streakDays;
-    }
-
-    public int getNivelAtualId() {
-        return nivelAtualId;
-    }
-
-    public void setNivelAtualId(int nivelAtualId) {
-        this.nivelAtualId = nivelAtualId;
-    }
+    public boolean isAdm() { return adm; }
+    public void setAdm(boolean adm) { this.adm = adm; }
 }

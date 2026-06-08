@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Wise Capital - Criar Quiz</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <style>
+        .admin-container { max-width: 900px; margin: 40px auto; padding: 20px; background: #f9f9f9; border-radius: 12px; }
+        .pergunta-card { background: white; padding: 20px; margin-bottom: 20px; border-left: 5px solid #002d5b; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .opcoes-grupo { margin-left: 20px; }
+        .hidden { display: none; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-add { background: #28a745; color: white; padding: 10px; border: none; cursor: pointer; }
+        .btn-save { background: #002d5b; color: white; width: 100%; padding: 15px; border: none; font-size: 1.2rem; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1><i class="fas fa-edit"></i> Novo Quiz</h1>
+        <label>Título do Quiz:</label>
+        <input type="text" id="quiz-titulo" placeholder="Ex: Introdução à Renda Fixa">
+        
+        <label>Nível da Trilha (1=Iniciante, 2=Interm, 3=Avançado):</label>
+        <input type="number" id="quiz-nivel" min="1" max="3" value="1">
+
+        <div id="lista-perguntas">
+            </div>
+
+        <button type="button" class="btn-add" onclick="adicionarPergunta()">+ Adicionar Pergunta</button>
+        <button type="button" class="btn-save" onclick="salvarQuiz()">SALVAR QUIZ COMPLETO</button>
+    </div>
+
+    <script>
+        let contagemPerguntas = 0;
+
+        function adicionarPergunta() {
+            contagemPerguntas++;
+            const div = document.createElement('div');
+            div.className = 'pergunta-card';
+            div.innerHTML = `
+                <h3>Pergunta ${contagemPerguntas}</h3>
+                <textarea class="p-texto" placeholder="Enunciado da pergunta"></textarea>
+                <label>Tipo:</label>
+                <select class="p-tipo" onchange="toggleOpcoes(this, ${contagemPerguntas})">
+                    <option value="FECHADA">Fechada (Múltipla Escolha)</option>
+                    <option value="ABERTA">Aberta (Correção por IA)</option>
+                </select>
+                <div id="opcoes-${contagemPerguntas}" class="opcoes-grupo">
+                    <label>Alternativas (Marque a correta):</label>
+                    <input type="radio" name="correta-${contagemPerguntas}" value="0" checked> <input type="text" class="opt-text" placeholder="Opção 1">
+                    <input type="radio" name="correta-${contagemPerguntas}" value="1"> <input type="text" class="opt-text" placeholder="Opção 2">
+                    <input type="radio" name="correta-${contagemPerguntas}" value="2"> <input type="text" class="opt-text" placeholder="Opção 3">
+                </div>
+                <label>Explicação (Feedback):</label>
+                <textarea class="p-explicacao" placeholder="Por que esta é a resposta correta?"></textarea>
+            `;
+            document.getElementById('lista-perguntas').appendChild(div);
+        }
+
+        function toggleOpcoes(select, id) {
+            const div = document.getElementById(`opcoes-${id}`);
+            div.className = (select.value === "ABERTA") ? "hidden" : "opcoes-grupo";
+        }
+
+        async function salvarQuiz() {
+            const quiz = {
+                titulo: document.getElementById('quiz-titulo').value,
+                nivel_id: document.getElementById('quiz-nivel').value,
+                perguntas: []
+            };
+
+            const cards = document.querySelectorAll('.pergunta-card');
+            cards.forEach((card, index) => {
+                const tipo = card.querySelector('.p-tipo').value;
+                const perguntaObj = {
+                    texto: card.querySelector('.p-texto').value,
+                    tipo: tipo,
+                    explicacao: card.querySelector('.p-explicacao').value,
+                    opcoes: []
+                };
+
+                if (tipo === "FECHADA") {
+                    const optTextos = card.querySelectorAll('.opt-text');
+                    const corretaIndex = card.querySelector(`input[name="correta-${index+1}"]:checked`).value;
+                    optTextos.forEach((opt, i) => {
+                        perguntaObj.opcoes.push({ texto: opt.value, correta: i == corretaIndex });
+                    });
+                }
+                quiz.perguntas.push(perguntaObj);
+            });
+
+            // Enviar para o Backend
+            const resp = await fetch('/quiz/cadastrar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(quiz)
+            });
+
+            if (resp.ok) {
+                alert("Quiz cadastrado com sucesso!");
+                window.location.href = "../trilha/index.html";
+            }
+        }
+    </script>
+</body>
+</html>
