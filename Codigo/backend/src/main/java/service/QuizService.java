@@ -47,7 +47,7 @@ public class QuizService {
         
         String githubToken = System.getenv("GITHUB_TOKEN");
         if (githubToken == null || githubToken.trim().isEmpty()) {
-            githubToken = "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"; // Coloque seu token temporariamente aqui para testes locais
+            githubToken = ""; // Coloque seu token temporariamente aqui para testes locais
         }
         
         String githubEndpoint = "https://models.inference.ai.azure.com/chat/completions";

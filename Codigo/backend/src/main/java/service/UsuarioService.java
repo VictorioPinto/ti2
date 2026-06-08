@@ -19,7 +19,7 @@ public class UsuarioService {
 
         String githubToken = System.getenv("GITHUB_TOKEN");
         if (githubToken == null || githubToken.trim().isEmpty()) {
-            githubToken = "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"; 
+            githubToken = ""; 
         }
         
         String githubEndpoint = "https://models.inference.ai.azure.com/chat/completions";

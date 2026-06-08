@@ -1,4 +1,4 @@
-package app;
+zpackage app;
 
 import static spark.Spark.*;
 
