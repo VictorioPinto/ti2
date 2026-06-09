@@ -1,3 +1,5 @@
+import { usuarioService } from "../services/usuarioService.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const formTopico = document.getElementById("form-topico");
   if (!formTopico) return;
@@ -7,11 +9,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let usuarioId = null;
 
-    // Recupera o ID do cofre gerado no login (auth.js)
-    const dadosUsuario = localStorage.getItem("usuarioAtual");
-    if (dadosUsuario) {
-      const usuario = JSON.parse(dadosUsuario);
-      usuarioId = usuario.id;
+    // Recupera o usuário atual através da sessão do backend
+    try {
+      const response = await usuarioService.getUsuarioAtual();
+      
+      if (response.ok) {
+        const usuario = await response.json();
+        usuarioId = usuario.id;
+      }
+    } catch (error) {
+      console.error("Erro ao buscar o usuário atual:", error);
     }
 
     if (!usuarioId) {
