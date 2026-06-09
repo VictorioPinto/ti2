@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <title>Ver Tópico</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f9f9f9; }
+        .container { max-width: 800px; margin: 30px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .comentario { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .btn-interagir { background: none; border: 1px solid #ccc; padding: 5px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" style="text-decoration: none; color: #0056b3;">&larr; Voltar ao Fórum</a>
+        
+        <div id="post-principal" style="margin-top: 20px;"></div>
+
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <h3>Comentários</h3>
+        <form id="form-comentario" style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <input type="text" id="texto-comentario" placeholder="Escreve um comentário..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required>
+            <button type="submit" style="padding: 10px 20px; background: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer;">Comentar</button>
+        </form>
+        
+        <div id="lista-comentarios"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const topicoId = urlParams.get('id');
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Carregar Tópico
+            const resTopico = await fetch(`http://localhost:8080/forum/${topicoId}`);
+            const topico = await resTopico.json();
+            
+            let htmlTopico = `<h1 style="margin-bottom: 10px;">${topico.titulo}</h1>`;
+            if (topico.imagemUrl) {
+                htmlTopico += `<img src="${topico.imagemUrl}" style="max-width: 100%; border-radius: 8px; margin-bottom: 15px;">`;
+            }
+            htmlTopico += `<p style="font-size: 16px; line-height: 1.6; color: #333;">${topico.conteudo}</p>`;
+            document.getElementById('post-principal').innerHTML = htmlTopico;
+
+            // Carregar Comentários
+            carregarComentarios();
+        });
+
+        async function carregarComentarios() {
+            const lista = document.getElementById('lista-comentarios');
+            lista.innerHTML = "";
+            const resComentarios = await fetch(`http://localhost:8080/forum/${topicoId}/comentarios`);
+            const comentarios = await resComentarios.json();
+
+            comentarios.forEach(c => {
+                lista.innerHTML += `
+                    <div class="comentario">
+                        <p style="margin: 0 0 10px 0; color: #444;">${c.conteudo}</p>
+                        <div>
+                            <button class="btn-interagir" onclick="interagir('comentario', ${c.id}, 'like', event)">👍 <span id="like-comentario-${c.id}">${c.likes}</span></button>
+                            <button class="btn-interagir" onclick="interagir('comentario', ${c.id}, 'dislike', event)">👎 <span id="dislike-comentario-${c.id}">${c.dislikes}</span></button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // Criar Comentário
+        document.getElementById('form-comentario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const params = new URLSearchParams();
+            params.append('usuarioId', 1);
+            params.append('conteudo', document.getElementById('texto-comentario').value);
+
+            await fetch(`http://localhost:8080/forum/${topicoId}/comentarios/insert`, { method: 'POST', body: params });
+            document.getElementById('texto-comentario').value = '';
+            carregarComentarios();
+        });
+
+        // Interagir (Reutilizável para topico ou comentário)
+        async function interagir(entidade, id, tipo, event) {
+            const res = await fetch(`http://localhost:8080/forum/${entidade}/${id}/${tipo}`, { method: 'POST' });
+            if (res.ok) {
+                const el = document.getElementById(`${tipo}-${entidade}-${id}`);
+                el.innerText = parseInt(el.innerText) + 1;
+            }
+        }
+    </script>
+</body>
+</html>

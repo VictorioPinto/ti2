@@ -50,9 +50,16 @@ public class Aplicacao {
         put("/faq/update/:id", (request, response) -> faqService.update(request, response));
         get("/faq/delete/:id", (request, response) -> faqService.delete(request, response));
         
-        // --- Rotas de Fórum ---
+     // --- Rotas de Fórum ---
         post("/forum/insert", (req, res) -> forumService.insert(req, res));
         get("/forum", (req, res) -> forumService.listarTodos(req, res));
+        get("/forum/:id", (req, res) -> forumService.getTopico(req, res));
+        post("/forum/topico/:id/:tipo", (req, res) -> forumService.interagirTopico(req, res));
+
+        // --- Rotas de Comentários ---
+        post("/forum/:id/comentarios/insert", (req, res) -> forumService.addComentario(req, res));
+        get("/forum/:id/comentarios", (req, res) -> forumService.listarComentarios(req, res));
+        post("/forum/comentario/:id/:tipo", (req, res) -> forumService.interagirComentario(req, res));
         
         // Corrigido para refletir a porta 8081 configurada no topo do arquivo
         System.out.println("Servidor Wise Capital rodando em http://localhost:8080");

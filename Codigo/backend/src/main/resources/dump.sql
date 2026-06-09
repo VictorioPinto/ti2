@@ -71,23 +71,29 @@ CREATE TABLE public.opcoes_pergunta (
     texto TEXT NOT NULL
 );
 
--- Tabela: forum_topicos (Estilo Reddit)
+DROP TABLE IF EXISTS public.forum_comentarios;
+DROP TABLE IF EXISTS public.forum_topicos;
+
 CREATE TABLE public.forum_topicos (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER REFERENCES public.usuarios(id),
     titulo VARCHAR(255) NOT NULL,
     conteudo TEXT NOT NULL,
+    imagem_url TEXT,
+    likes INTEGER DEFAULT 0,
+    dislikes INTEGER DEFAULT 0,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela: forum_comentarios
 CREATE TABLE public.forum_comentarios (
     id SERIAL PRIMARY KEY,
     topico_id INTEGER REFERENCES public.forum_topicos(id),
     usuario_id INTEGER REFERENCES public.usuarios(id),
     conteudo TEXT NOT NULL,
+    likes INTEGER DEFAULT 0,
+    dislikes INTEGER DEFAULT 0,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    comentario_pai_id INTEGER -- Para respostas encadeadas
+    comentario_pai_id INTEGER
 );
 
 -- Tabela: investimentos (Dados vindos do db.json original)

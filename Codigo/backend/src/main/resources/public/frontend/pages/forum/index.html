@@ -1,98 +1,59 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wise Capital</title>
-    <link rel="stylesheet" href="../../assets/css/styles.css" />
-    <script type="module" src="../../js/modules/sidebar.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-  </head>
-  <body>
-    <nav class="sidebar">
-      <div class="sidebar-header">
-        <img src="../../assets/img/logoazul.jpg" alt="Logo Wise Capital" />
-        <h2>Wise Capital</h2>
-      </div>
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <title>Fórum Wise Capital</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <style>
+        .forum-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px; background: white; cursor: pointer; transition: 0.2s;}
+        .forum-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .forum-actions button { background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 10px; }
+        .forum-actions button:hover { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <div style="max-width: 800px; margin: auto; padding: 20px;">
+        <h1>Fórum</h1>
+        <button onclick="window.location.href='novo_topico.html'" style="padding: 10px; background: #0056b3; color: white; border: none; border-radius: 5px; cursor:pointer; margin-bottom: 20px;">+ Novo Tópico</button>
+        <div id="feed-forum"></div>
+    </div>
 
-      <ul class="sidebar-links">
-        <li>
-          <a href="../../index.html"><i class="fas fa-home"></i> Início</a>
-        </li>
-        <li class="active">
-          <a href="../trilha/index.html"
-            ><i class="fas fa-map-signs"></i> Trilha</a
-          >
-        </li>
-        <li>
-          <a href="../forum/index.html"
-            ><i class="fas fa-comments"></i> Fórum</a
-          >
-        </li>
-        <li>
-          <a href="../simulador/index.html"
-            ><i class="fas fa-chart-line"></i> Simulador</a
-          >
-        </li>
-        <li>
-          <a href="../sobre/index.html"
-            ><i class="fas fa-info-circle"></i> Sobre</a
-          >
-        </li>
-      </ul>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const feed = document.getElementById("feed-forum");
+            const response = await fetch("http://localhost:8080/forum");
+            const topicos = await response.json();
 
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <i class="fas fa-user-circle"></i>
-          <span id="user-name">Carregando...</span>
-        </div>
-        <button id="btn-logout" class="btn-logout">
-          <i class="fas fa-sign-out-alt"></i> Sair
-        </button>
-      </div>
-    </nav>
-<main class="main-content">
-    <h1>Fórum Wise Capital</h1>
-    <button onclick="window.location.href='novo.html'">Criar Novo Tópico</button>
-    <div id="feed-forum"></div>
-</main>
+            topicos.forEach(t => {
+                let conteudoHTML = (t.imagemUrl && t.imagemUrl.trim() !== "") 
+                    ? `<img src="${t.imagemUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">`
+                    : `<p style="margin-top: 10px; color: #555;">${t.conteudo.substring(0, 150)}...</p>`;
 
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-    const feed = document.getElementById("feed-forum");
-    
-    // Busca os tópicos do backend
-    const response = await fetch("http://localhost:8080/forum");
-    const topicos = await response.json();
+                feed.innerHTML += `
+                    <div class="forum-card" onclick="window.location.href='topico.html?id=${t.id}'">
+                        <h2 style="margin: 0;">${t.titulo}</h2>
+                        ${conteudoHTML}
+                        <div class="forum-actions" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display: flex; align-items: center;">
+                            <button onclick="interagir('topico', ${t.id}, 'like', event)">👍 <span id="like-topico-${t.id}">${t.likes}</span></button>
+                            <button onclick="interagir('topico', ${t.id}, 'dislike', event)">👎 <span id="dislike-topico-${t.id}">${t.dislikes}</span></button>
+                            <span style="color: #666; font-size: 14px;">💬 ${t.quantidadeComentarios} Comentários</span>
+                        </div>
+                    </div>`;
+            });
+        });
 
-    topicos.forEach(topico => {
-        let conteudoHTML = "";
-
-        // Regra de negócio: Se tem imagem, mostra a imagem e ESCONDE o texto.
-        // Se não tem imagem, mostra o texto.
-        if (topico.imagemUrl && topico.imagemUrl.trim() !== "") {
-            conteudoHTML = `<img src="${topico.imagemUrl}" style="max-width: 100%; border-radius: 8px;" alt="Imagem do tópico">`;
-        } else {
-            // Limita o texto para não ficar gigante no feed
-            conteudoHTML = `<p>${topico.conteudo.substring(0, 150)}...</p>`;
+        async function interagir(entidade, id, tipo, event) {
+            event.stopPropagation(); // Impede de abrir a página ao dar like
+            const url = entidade === 'topico' 
+                ? `http://localhost:8080/forum/topico/${id}/${tipo}` 
+                : `http://localhost:8080/forum/comentario/${id}/${tipo}`;
+            
+            const res = await fetch(url, { method: 'POST' });
+            if (res.ok) {
+                const el = document.getElementById(`${tipo}-${entidade}-${id}`);
+                el.innerText = parseInt(el.innerText) + 1;
+            }
         }
-
-        // Criando o card clicável que redireciona para a página de detalhes
-        feed.innerHTML += `
-            <div class="forum-card" onclick="window.location.href='topico.html?id=${topico.id}'" style="cursor: pointer; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; background: white;">
-                <h2>${topico.titulo}</h2>
-                <div class="card-body">
-                    ${conteudoHTML}
-                </div>
-            </div>
-        `;
-    });
-});
-</script>
-    <script type="module" src="../../js/modules/trilha.js"></script>
-  </body>
+    </script>
+</body>
 </html>
-

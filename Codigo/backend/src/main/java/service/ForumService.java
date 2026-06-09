@@ -1,36 +1,59 @@
 package service;
-import com.google.gson.Gson; 
 import dao.ForumDAO;
+import dao.ComentarioDAO;
 import model.ForumTopico;
+import model.ForumComentario;
 import spark.Request;
 import spark.Response;
-import java.util.List;
+import com.google.gson.Gson;
 
 public class ForumService {
     private ForumDAO forumDAO = new ForumDAO();
-
+    private ComentarioDAO comentarioDAO = new ComentarioDAO();
+    private Gson gson = new Gson();
 
     public Object insert(Request request, Response response) {
         int usuarioId = Integer.parseInt(request.queryParams("usuarioId"));
         String titulo = request.queryParams("titulo");
         String conteudo = request.queryParams("conteudo");
-        String imagemUrl = request.queryParams("imagemUrl"); // Pegando a imagem
-
-        ForumTopico topico = new ForumTopico(-1, usuarioId, titulo, conteudo, imagemUrl, null);
-
-        if (forumDAO.insert(topico)) {
-            response.status(201);
-            return "{\"success\": true}";
-        } else {
-            response.status(500);
-            return "{\"success\": false}";
-        }
+        String imagemUrl = request.queryParams("imagemUrl");
+        ForumTopico topico = new ForumTopico(-1, usuarioId, titulo, conteudo, imagemUrl, 0, 0, 0, null);
+        response.type("application/json");
+        return forumDAO.insert(topico) ? "{\"success\": true}" : "{\"success\": false}";
     }
 
     public Object listarTodos(Request request, Response response) {
-        List<ForumTopico> topicos = forumDAO.getAll();
         response.type("application/json");
-        Gson gson = new Gson();
-        return gson.toJson(topicos); // Agora retorna um JSON de verdade!
+        return gson.toJson(forumDAO.getAll());
+    }
+
+    public Object getTopico(Request request, Response response) {
+        response.type("application/json");
+        return gson.toJson(forumDAO.getById(Integer.parseInt(request.params(":id"))));
+    }
+
+    public Object interagirTopico(Request request, Response response) {
+        response.type("application/json");
+        return forumDAO.interagir(Integer.parseInt(request.params(":id")), request.params(":tipo")) ? "{\"success\": true}" : "{\"success\": false}";
+    }
+
+    // --- MÉTODOS DE COMENTÁRIOS ---
+    public Object addComentario(Request request, Response response) {
+        int topicoId = Integer.parseInt(request.params(":id"));
+        int usuarioId = Integer.parseInt(request.queryParams("usuarioId"));
+        String conteudo = request.queryParams("conteudo");
+        ForumComentario c = new ForumComentario(-1, topicoId, usuarioId, conteudo, 0, 0, null);
+        response.type("application/json");
+        return comentarioDAO.insert(c) ? "{\"success\": true}" : "{\"success\": false}";
+    }
+
+    public Object listarComentarios(Request request, Response response) {
+        response.type("application/json");
+        return gson.toJson(comentarioDAO.getByTopicoId(Integer.parseInt(request.params(":id"))));
+    }
+
+    public Object interagirComentario(Request request, Response response) {
+        response.type("application/json");
+        return comentarioDAO.interagir(Integer.parseInt(request.params(":id")), request.params(":tipo")) ? "{\"success\": true}" : "{\"success\": false}";
     }
 }
