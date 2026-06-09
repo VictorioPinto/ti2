@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wise Capital</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <script type="module" src="../../js/modules/sidebar.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <img src="../../assets/img/logoazul.jpg" alt="Logo Wise Capital" />
+        <h2>Wise Capital</h2>
+      </div>
+
+      <ul class="sidebar-links">
+        <li>
+          <a href="../../index.html"><i class="fas fa-home"></i> Início</a>
+        </li>
+        <li class="active">
+          <a href="../trilha/index.html"
+            ><i class="fas fa-map-signs"></i> Trilha</a
+          >
+        </li>
+        <li>
+          <a href="../forum/index.html"
+            ><i class="fas fa-comments"></i> Fórum</a
+          >
+        </li>
+        <li>
+          <a href="../simulador/index.html"
+            ><i class="fas fa-chart-line"></i> Simulador</a
+          >
+        </li>
+        <li>
+          <a href="../sobre/index.html"
+            ><i class="fas fa-info-circle"></i> Sobre</a
+          >
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <i class="fas fa-user-circle"></i>
+          <span id="user-name">Carregando...</span>
+        </div>
+        <button id="btn-logout" class="btn-logout">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+      </div>
+    </nav>
+<main class="main-content">
+    <h1>Fórum Wise Capital</h1>
+    <button onclick="window.location.href='novo.html'">Criar Novo Tópico</button>
+    <div id="feed-forum"></div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const feed = document.getElementById("feed-forum");
+    
+    // Busca os tópicos do backend
+    const response = await fetch("http://localhost:8080/forum");
+    const topicos = await response.json();
+
+    topicos.forEach(topico => {
+        let conteudoHTML = "";
+
+        // Regra de negócio: Se tem imagem, mostra a imagem e ESCONDE o texto.
+        // Se não tem imagem, mostra o texto.
+        if (topico.imagemUrl && topico.imagemUrl.trim() !== "") {
+            conteudoHTML = `<img src="${topico.imagemUrl}" style="max-width: 100%; border-radius: 8px;" alt="Imagem do tópico">`;
+        } else {
+            // Limita o texto para não ficar gigante no feed
+            conteudoHTML = `<p>${topico.conteudo.substring(0, 150)}...</p>`;
+        }
+
+        // Criando o card clicável que redireciona para a página de detalhes
+        feed.innerHTML += `
+            <div class="forum-card" onclick="window.location.href='topico.html?id=${topico.id}'" style="cursor: pointer; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; background: white;">
+                <h2>${topico.titulo}</h2>
+                <div class="card-body">
+                    ${conteudoHTML}
+                </div>
+            </div>
+        `;
+    });
+});
+</script>
+    <script type="module" src="../../js/modules/trilha.js"></script>
+  </body>
+</html>
+

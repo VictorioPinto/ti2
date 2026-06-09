@@ -18,12 +18,13 @@ public class ForumDAO extends DAO {
     public boolean insert(ForumTopico topico) {
         boolean status = false;
         try {
-            String sql = "INSERT INTO forum_topicos (usuario_id, titulo, conteudo, data_criacao) VALUES (?, ?, ?, ?)";
-            PreparedStatement st = conexao.prepareStatement(sql);
-            st.setInt(1, topico.getUsuarioId());
-            st.setString(2, topico.getTitulo());
-            st.setString(3, topico.getConteudo());
-            st.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+        	String sql = "INSERT INTO forum_topicos (usuario_id, titulo, conteudo, imagem_url, data_criacao) VALUES (?, ?, ?, ?, ?)";
+        	PreparedStatement st = conexao.prepareStatement(sql);
+        	st.setInt(1, topico.getUsuarioId());
+        	st.setString(2, topico.getTitulo());
+        	st.setString(3, topico.getConteudo());
+        	st.setString(4, topico.getImagemUrl()); 
+        	st.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
             st.executeUpdate();
             st.close();
             status = true;
@@ -40,13 +41,14 @@ public class ForumDAO extends DAO {
             Statement st = conexao.createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
-                topicos.add(new ForumTopico(
-                    rs.getInt("id"),
-                    rs.getInt("usuario_id"),
-                    rs.getString("titulo"),
-                    rs.getString("conteudo"),
-                    rs.getTimestamp("data_criacao")
-                ));
+            	topicos.add(new ForumTopico(
+            		    rs.getInt("id"),
+            		    rs.getInt("usuario_id"),
+            		    rs.getString("titulo"),
+            		    rs.getString("conteudo"),
+            		    rs.getString("imagem_url"), // Pegando a imagem do banco
+            		    rs.getTimestamp("data_criacao")
+            		));
             }
             st.close();
         } catch (Exception e) {

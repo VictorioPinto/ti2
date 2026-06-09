@@ -1,4 +1,4 @@
-zpackage app;
+package app;
 
 import static spark.Spark.*;
 
@@ -51,7 +51,7 @@ public class Aplicacao {
         get("/faq/delete/:id", (request, response) -> faqService.delete(request, response));
         
         // --- Rotas de Fórum ---
-        post("/forum", (req, res) -> forumService.insert(req, res));
+        post("/forum/insert", (req, res) -> forumService.insert(req, res));
         get("/forum", (req, res) -> forumService.listarTodos(req, res));
         
         // Corrigido para refletir a porta 8081 configurada no topo do arquivo
