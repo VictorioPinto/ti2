@@ -111,7 +111,6 @@ CREATE TABLE public.faq (
     pergunta TEXT,
     resposta TEXT
 );
-ALTER TABLE public.forum_topicos ADD COLUMN imagem_url TEXT;
 
 -- -----------------------------------------------------
 -- Permissões

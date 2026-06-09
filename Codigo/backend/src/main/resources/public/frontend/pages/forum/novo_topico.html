@@ -23,17 +23,58 @@
     </div>
 
     <script>
-        document.getElementById('form-topico').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const params = new URLSearchParams();
-            params.append('usuarioId', 1); // Utilizador estático para teste
-            params.append('titulo', document.getElementById('titulo').value);
-            params.append('imagemUrl', document.getElementById('imagemUrl').value);
-            params.append('conteudo', document.getElementById('conteudo').value);
+ // Criar Comentário
+    document.getElementById('form-comentario').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        let usuarioId = null;
 
-            const res = await fetch('http://localhost:8080/forum/insert', { method: 'POST', body: params });
-            if (res.ok) window.location.href = 'index.html';
-        });
-    </script>
+        // 1. Tenta pegar o usuário do cofre do navegador (salvo no auth.js)
+        const dadosUsuario = localStorage.getItem('usuarioAtual');
+        if (dadosUsuario) {
+            const usuario = JSON.parse(dadosUsuario);
+            usuarioId = usuario.id;
+        } else {
+            // 2. Se não achar, usa o seu usuarioService para perguntar ao Java quem está logado
+            try {
+                const { usuarioService } = await import('../../js/services/usuarioService.js');
+                const response = await usuarioService.getUsuarioAtual();
+                if (response.ok) {
+                    const usuario = await response.json();
+                    usuarioId = usuario.id;
+                }
+            } catch (error) {
+                console.error("Erro ao puxar usuário logado:", error);
+            }
+        }
+
+        // 3. Trava de segurança: Se ainda não tiver ID, avisa o usuário
+        if (!usuarioId) {
+            alert("Você precisa fazer login para poder comentar!");
+            return; // Para a execução e não dá erro 500
+        }
+
+        // 4. Envia o comentário com o ID real do seu usuário
+        const params = new URLSearchParams();
+        params.append('usuarioId', usuarioId);
+        params.append('conteudo', document.getElementById('texto-comentario').value);
+
+        try {
+            const res = await fetch(`http://localhost:8080/forum/${topicoId}/comentarios/insert`, { 
+                method: 'POST', 
+                body: params 
+            });
+            
+            if (res.ok) {
+                document.getElementById('texto-comentario').value = ''; // Limpa a caixa de texto
+                carregarComentarios(); // Mostra o novo comentário na tela
+            } else {
+                alert("Erro ao salvar o comentário no banco de dados.");
+            }
+        } catch (err) {
+            console.error("Erro de comunicação:", err);
+        }
+    });
+</script>
 </body>
 </html>
