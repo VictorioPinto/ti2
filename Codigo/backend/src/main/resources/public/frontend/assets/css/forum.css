@@ -1,0 +1,143 @@
+/* --- ESTILOS GERAIS DO FÓRUM --- */
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+.forum-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* --- ESTILOS DO FEED (index.html) --- */
+.btn-novo-topico {
+  padding: 10px 20px;
+  background: #0056b3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.btn-novo-topico:hover {
+  background: #004085;
+}
+
+.forum-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.forum-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.forum-actions button,
+.btn-interagir {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background 0.2s;
+}
+
+.forum-actions button:hover,
+.btn-interagir:hover {
+  background: #f0f0f0;
+}
+
+/* --- ESTILOS DE CRIAÇÃO (novo_topico.html) --- */
+.form-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h2 {
+  margin-top: 0;
+}
+
+.form-container input[type="text"],
+.form-container textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0 18px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.form-container textarea {
+  resize: vertical;
+}
+
+.btn-submit {
+  background: #0056b3;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-submit:hover {
+  background: #004085;
+}
+
+.btn-cancel {
+  margin-left: 15px;
+  color: #666;
+  text-decoration: none;
+}
+
+.btn-cancel:hover {
+  text-decoration: underline;
+}
+
+/* --- ESTILOS DO TÓPICO INTERNO (topico.html) --- */
+.topic-container {
+  max-width: 800px;
+  margin: 30px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.comentario {
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.form-comentario-container {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.form-comentario-container input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

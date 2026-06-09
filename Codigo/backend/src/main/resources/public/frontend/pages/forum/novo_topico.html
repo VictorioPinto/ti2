@@ -1,80 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-PT">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Criar Tópico</title>
-    <link rel="stylesheet" href="../../assets/css/styles.css">
-    <style>
-        .form-container { max-width: 600px; margin: 40px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
-        button { background: #0056b3; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-    </style>
-</head>
-<body>
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/forum.css" />
+  </head>
+  <body>
     <div class="form-container">
-        <h2>Criar Discussão</h2>
-        <form id="form-topico">
-            <input type="text" id="titulo" placeholder="Título" required>
-            <input type="text" id="imagemUrl" placeholder="URL da Imagem (Opcional)">
-            <textarea id="conteudo" placeholder="Texto da discussão..." rows="6" required></textarea>
-            <button type="submit">Publicar</button>
-            <a href="index.html" style="margin-left: 15px; color: #666; text-decoration: none;">Cancelar</a>
-        </form>
+      <h2>Criar Discussão</h2>
+      <form id="form-topico">
+        <input type="text" id="titulo" placeholder="Título" required />
+        <input
+          type="text"
+          id="imagemUrl"
+          placeholder="URL da Imagem (Opcional)"
+        />
+        <textarea
+          id="conteudo"
+          placeholder="Texto da discussão..."
+          rows="6"
+          required
+        ></textarea>
+        <button type="submit" class="btn-submit">Publicar</button>
+        <a href="index.html" class="btn-cancel">Cancelar</a>
+      </form>
     </div>
 
-    <script>
- // Criar Comentário
-    document.getElementById('form-comentario').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        let usuarioId = null;
-
-        // 1. Tenta pegar o usuário do cofre do navegador (salvo no auth.js)
-        const dadosUsuario = localStorage.getItem('usuarioAtual');
-        if (dadosUsuario) {
-            const usuario = JSON.parse(dadosUsuario);
-            usuarioId = usuario.id;
-        } else {
-            // 2. Se não achar, usa o seu usuarioService para perguntar ao Java quem está logado
-            try {
-                const { usuarioService } = await import('../../js/services/usuarioService.js');
-                const response = await usuarioService.getUsuarioAtual();
-                if (response.ok) {
-                    const usuario = await response.json();
-                    usuarioId = usuario.id;
-                }
-            } catch (error) {
-                console.error("Erro ao puxar usuário logado:", error);
-            }
-        }
-
-        // 3. Trava de segurança: Se ainda não tiver ID, avisa o usuário
-        if (!usuarioId) {
-            alert("Você precisa fazer login para poder comentar!");
-            return; // Para a execução e não dá erro 500
-        }
-
-        // 4. Envia o comentário com o ID real do seu usuário
-        const params = new URLSearchParams();
-        params.append('usuarioId', usuarioId);
-        params.append('conteudo', document.getElementById('texto-comentario').value);
-
-        try {
-            const res = await fetch(`http://localhost:8080/forum/${topicoId}/comentarios/insert`, { 
-                method: 'POST', 
-                body: params 
-            });
-            
-            if (res.ok) {
-                document.getElementById('texto-comentario').value = ''; // Limpa a caixa de texto
-                carregarComentarios(); // Mostra o novo comentário na tela
-            } else {
-                alert("Erro ao salvar o comentário no banco de dados.");
-            }
-        } catch (err) {
-            console.error("Erro de comunicação:", err);
-        }
-    });
-</script>
-</body>
+    <script src="../../js/modules/forumNovo.js"></script>
+  </body>
 </html>
