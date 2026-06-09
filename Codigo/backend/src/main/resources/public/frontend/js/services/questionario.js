@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (response.ok && result.success) {
           alert("Análise concluída! Você foi classificado no Nível " + result.nivelSugerido);
          
-          window.location.href = "../trilha/index.html";
+          window.location.href = "../index.html";
         } else {
           alert("Erro ao salvar respostas: " + (result.message || "Tente novamente."));
           btn.innerHTML = textoOriginal;

@@ -36,6 +36,7 @@ public class Aplicacao {
         // --- Rotas de Trilha ---
         get("/trilha/niveis", (request, response) -> trilhaService.listarNiveis(request, response));
         post("/trilha/avancar", (request, response) -> trilhaService.avancarNivel(request, response));
+        get("/trilha/quizzes", (request, response) -> trilhaService.listarQuizzesDoUsuario(request, response));
 
         // --- Rotas de Quiz e Questionário ---
         get("/quiz/:id/perguntas", (request, response) -> quizService.getPerguntasQuiz(request, response));
