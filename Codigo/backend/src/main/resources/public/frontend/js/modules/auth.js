@@ -30,18 +30,19 @@ loginForm.addEventListener("submit", async (e) => {
     
     const result = await response.json(); 
 
-    if (response.ok && result.success) {
-      alert("Bem-vindo, " + result.nome + "!");
+	if (response.ok && result.success) {
+	      alert("Bem-vindo, " + result.nome + "!");
 
-      
-      if (result.primeiroAcesso) {
-        
-        window.location.href = "../trilha/formia/index.html"; 
-      } else {
-        
-        window.location.href = "../trilha/index.html";
-      }
-    } else {
+	      // ADICIONA ESTA LINHA PARA GUARDAR A PERMISSÃO DE ADMIN:
+	      // (Se o teu backend retorna 'adm' no JSON, guardamos como true/false)
+	      localStorage.setItem('usuario_adm', result.adm || result.usuario?.adm || false);
+
+	      if (result.primeiroAcesso) {
+	        window.location.href = "../trilha/formia/index.html"; 
+	      } else {
+	        window.location.href = "../trilha/index.html";
+	      }
+	    } else {
       alert(result.message || "Erro ao realizar o login.");
     }
   } catch (error) {

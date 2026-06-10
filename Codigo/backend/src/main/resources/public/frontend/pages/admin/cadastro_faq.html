@@ -129,14 +129,16 @@
     </main>
 
     <script>
-    // Proteção básica para garantir que apenas admins acedem
-    const usuarioLogado = JSON.parse(localStorage.getItem('usuario')) || JSON.parse(sessionStorage.getItem('usuario'));
-    if (!usuarioLogado || (usuarioLogado.tipo !== 'ADMIN' && !usuarioLogado.isAdmin)) {
+    // Busca a variável que o login (auth.js) guardou na memória do navegador
+    const isAdm = localStorage.getItem('usuario_adm') === 'true';
+    
+    // Se não for administrador, bloqueia o acesso e redireciona
+    if (!isAdm) {
         alert('Acesso negado. Apenas administradores podem aceder a esta página.');
         window.location.href = '../faq/faq.html';
     }
 
-    // Lógica original de envio ajustada para a nova página
+    // Lógica para enviar o formulário e criar o novo FAQ
     document.getElementById('form-cadastro-faq').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -153,7 +155,7 @@
             });
 
             alert('FAQ cadastrado com sucesso!');
-            window.location.href = '../faq/faq.html'; // Redireciona de volta para a lista
+            window.location.href = '../faq/faq.html'; // Redireciona de volta para a lista de FAQs
 
         } catch (error) {
             console.error("Erro ao inserir FAQ:", error);

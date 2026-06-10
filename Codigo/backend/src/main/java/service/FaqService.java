@@ -20,7 +20,8 @@ public class FaqService {
         String pergunta = request.queryParams("pergunta");
         String respostaTexto = request.queryParams("resposta");
 
-        Faq faq = new Faq(-1, pergunta, respostaTexto);
+        // Cria o FAQ novo já com 0 acessos iniciais
+        Faq faq = new Faq(-1, pergunta, respostaTexto, 0);
 
         if (faqDAO.insert(faq)) {
             response.status(201);
@@ -56,6 +57,22 @@ public class FaqService {
     }
 
     /**
+     * REGISTRAR VISUALIZAÇÃO (NOVO MÉTODO)
+     * Chamado pelo JavaScript quando a sanfona é aberta
+     */
+    public Object registrarView(Request request, Response response) {
+        
+        int id = Integer.parseInt(request.params(":id"));
+        
+        // Regista o acesso na base de dados
+        faqDAO.registrarAcesso(id);
+        
+        response.status(200);
+        response.type("application/json");
+        return "{\"success\": true}";
+    }
+
+    /**
      * LISTAR TODAS AS FAQS
      */
     public Object listar(Request request, Response response) {
@@ -86,8 +103,9 @@ public class FaqService {
             return "FAQ não encontrada.";
         }
 
+        // Atualiza a pergunta e a resposta, mas mantém os acessos que já existiam
         Faq faqAtualizada =
-                new Faq(id, pergunta, respostaTexto);
+                new Faq(id, pergunta, respostaTexto, faqExistente.getAcessos());
 
         if (faqDAO.update(faqAtualizada)) {
 

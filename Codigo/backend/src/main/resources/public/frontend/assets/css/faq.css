@@ -1,60 +1,74 @@
-/* Estilos do FAQ Accordion */
+.faq-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.btn-admin {
+    background-color: #002d5b; /* Usa a cor azul do projeto */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-admin:hover {
+    background-color: #004080;
+}
+
+/* Lista em estilo Sanfona (Accordion) */
 .faq-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 900px;
 }
 
 .faq-item {
-  background-color: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.faq-item:hover {
-  border-color: #0056b3;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow: hidden;
 }
 
 .faq-question {
-  padding: 20px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #1a202c;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-}
-
-.faq-question i {
-  transition: transform 0.3s ease;
-  color: #0056b3;
+    padding: 20px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
 }
 
 .faq-answer {
-  max-height: 0;
-  overflow: hidden;
-  transition:
-    max-height 0.3s ease-out,
-    padding 0.3s ease;
-  padding: 0 20px;
-  background-color: #f8fafc;
-  color: #4a5568;
-  line-height: 1.6;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease;
+    background-color: #f9f9f9;
+    color: #444;
+    padding: 0 20px;
 }
 
-/* Estado quando o card está aberto/ativo */
-.faq-item.active .faq-question i {
-  transform: rotate(180deg);
-}
-
+/* Quando o card está aberto */
 .faq-item.active .faq-answer {
-  max-height: 500px; /* Limite seguro para o texto expandir */
-  padding: 0 20px 20px 20px;
-  border-top: 1px solid #edf2f7;
+    max-height: 500px;
+    padding: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* Roda a setinha quando aberto */
+.faq-item.active .faq-question i.fa-chevron-down {
+    transform: rotate(180deg);
+    transition: transform 0.3s;
 }

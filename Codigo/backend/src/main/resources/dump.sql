@@ -115,7 +115,16 @@ CREATE TABLE public.investimentos (
 CREATE TABLE public.faq (
     id SERIAL PRIMARY KEY,
     pergunta TEXT,
-    resposta TEXT
+    resposta TEXT,
+    acessos INTEGER DEFAULT 0 -- Nova coluna de contagem de views
+);
+CREATE TABLE public.biblioteca (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    tipo VARCHAR(50) NOT NULL, -- 'TEXTO' ou 'VIDEO'
+    categoria VARCHAR(100),    -- Ex: 'Renda Fixa', 'Ações', 'Introdução'
+    url_conteudo TEXT NOT NULL
 );
 
 -- -----------------------------------------------------
@@ -134,6 +143,7 @@ ALTER TABLE public.forum_topicos OWNER TO wise;
 ALTER TABLE public.forum_comentarios OWNER TO wise;
 ALTER TABLE public.investimentos OWNER TO wise;
 ALTER TABLE public.faq OWNER TO wise;
+ALTER TABLE public.biblioteca OWNER TO wise;
 
 --
 -- PostgreSQL database dump complete
