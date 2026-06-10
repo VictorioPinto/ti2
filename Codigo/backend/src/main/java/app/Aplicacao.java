@@ -51,6 +51,7 @@ get("/biblioteca/delete/:id", (request, response) -> materialService.delete(requ
         post("/questionario/avaliar-aberta", (request, response) -> quizService.avaliarRespostaAberta(request, response));
         post("/questionario/salvar", (request, response) -> usuarioService.avaliarDiagnostico(request, response));
         post("/quiz/:id/atualizar", (request, response) -> quizService.atualizar(request, response));
+        get("/quiz/delete/:id", (request, response) -> quizService.deletarQuiz(request, response));
 
         // --- Rotas FAQ ---
         post("/faq/view/:id", (request, response) -> faqService.registrarView(request, response));

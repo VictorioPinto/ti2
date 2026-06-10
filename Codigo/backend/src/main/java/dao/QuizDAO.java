@@ -249,4 +249,42 @@ public class QuizDAO extends DAO {
             return false;
         }
     }
+ // --- NOVO: MÉTODO PARA DELETAR UM QUIZ ---
+    public boolean deleteQuiz(int quizId) {
+        try {
+            conexao.setAutoCommit(false); // Inicia uma transação
+
+            // 1. Apaga as opções das perguntas ligadas a este quiz
+            String sqlDelOpcoes = "DELETE FROM opcoes_pergunta WHERE pergunta_id IN (SELECT id FROM perguntas WHERE quiz_id = ?)";
+            PreparedStatement st1 = conexao.prepareStatement(sqlDelOpcoes);
+            st1.setInt(1, quizId);
+            st1.executeUpdate();
+
+            // 2. Apaga as perguntas deste quiz
+            String sqlDelPerguntas = "DELETE FROM perguntas WHERE quiz_id = ?";
+            PreparedStatement st2 = conexao.prepareStatement(sqlDelPerguntas);
+            st2.setInt(1, quizId);
+            st2.executeUpdate();
+
+            // 3. Apaga os registos de utilizadores que já fizeram este quiz
+            String sqlDelProgresso = "DELETE FROM usuario_quizzes_feitos WHERE quiz_id = ?";
+            PreparedStatement st3 = conexao.prepareStatement(sqlDelProgresso);
+            st3.setInt(1, quizId);
+            st3.executeUpdate();
+
+            // 4. Finalmente, apaga o próprio quiz
+            String sqlDelQuiz = "DELETE FROM quizzes WHERE id = ?";
+            PreparedStatement st4 = conexao.prepareStatement(sqlDelQuiz);
+            st4.setInt(1, quizId);
+            st4.executeUpdate();
+
+            conexao.commit(); // Confirma as alterações
+            return true;
+
+        } catch (Exception e) {
+            try { conexao.rollback(); } catch (SQLException ex) {}
+            System.err.println("Erro ao deletar quiz: " + e.getMessage());
+            return false;
+        }
+    }
 }

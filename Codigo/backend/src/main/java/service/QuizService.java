@@ -142,4 +142,22 @@ public class QuizService {
             return "{\"success\": false}";
         }
     }
+ // --- NOVO: ROTA PARA DELETAR QUIZ ---
+    public Object deletarQuiz(Request request, Response response) {
+        int quizId;
+        try {
+            quizId = Integer.parseInt(request.params(":id"));
+        } catch (NumberFormatException e) {
+            response.status(400);
+            return "{\"success\": false, \"erro\": \"ID inválido\"}";
+        }
+
+        if (quizDAO.deleteQuiz(quizId)) {
+            response.status(200);
+            return "{\"success\": true}";
+        } else {
+            response.status(500);
+            return "{\"success\": false, \"erro\": \"Erro ao deletar o quiz\"}";
+        }
+    }
 }

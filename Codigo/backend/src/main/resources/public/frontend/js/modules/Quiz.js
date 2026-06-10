@@ -172,4 +172,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "../index.html";
         
     });
+	// --- NOVO: LÓGICA DO BOTÃO EXCLUIR PARA ADM ---
+	    const isAdm = localStorage.getItem("usuario_adm") === "true";
+	    
+	    if (isAdm) {
+	        // Cria o botão de excluir
+	        const btnExcluirQuiz = document.createElement("button");
+	        btnExcluirQuiz.innerHTML = '<i class="fas fa-trash"></i> Excluir Quiz';
+	        btnExcluirQuiz.style.cssText = "background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;";
+	        
+	        // Insere o botão no topo, antes do elemento de progresso
+	        progresso.parentNode.insertBefore(btnExcluirQuiz, progresso);
+
+	        // Ação ao clicar em excluir
+	        btnExcluirQuiz.addEventListener("click", async () => {
+	            const confirmacao = confirm("TEM A CERTEZA que deseja excluir este quiz? Esta ação apagará todas as perguntas e o progresso dos alunos neste quiz.");
+	            
+	            if (confirmacao) {
+	                try {
+	                    const res = await fetch(`/quiz/delete/${quizId}`);
+	                    const resultado = await res.json();
+	                    
+	                    if (resultado.success) {
+	                        alert("Quiz excluído com sucesso!");
+	                        window.location.href = "../index.html"; // Redireciona de volta para a trilha
+	                    } else {
+	                        alert("Erro ao excluir o quiz no servidor.");
+	                    }
+	                } catch (error) {
+	                    console.error("Erro ao deletar:", error);
+	                    alert("Falha na comunicação com o servidor.");
+	                }
+	            }
+	        });
+	    }
+	    // ----------------------------------------------
 });
