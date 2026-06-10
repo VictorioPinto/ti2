@@ -38,12 +38,22 @@ public class ForumService {
         response.type("application/json");
 
         if (usuarioId == null) {
-            response.status(401); // Não autorizado
+            response.status(401);
             return "{\"success\": false, \"message\": \"Você precisa fazer login para curtir.\"}";
         }
 
         boolean success = forumDAO.interagir(Integer.parseInt(request.params(":id")), usuarioId, request.params(":tipo"));
         return success ? "{\"success\": true}" : "{\"success\": false}";
+    }
+
+    // --- NOVO: MÉTODO PARA ATUALIZAR TÓPICO ---
+    public Object updateTopico(Request request, Response response) {
+        int id = Integer.parseInt(request.params(":id"));
+        String titulo = request.queryParams("titulo");
+        String conteudo = request.queryParams("conteudo");
+        String imagemUrl = request.queryParams("imagemUrl");
+        response.type("application/json");
+        return forumDAO.update(id, titulo, conteudo, imagemUrl) ? "{\"success\": true}" : "{\"success\": false}";
     }
 
     // --- MÉTODOS DE COMENTÁRIOS ---
@@ -61,7 +71,6 @@ public class ForumService {
         return gson.toJson(comentarioDAO.getByTopicoId(Integer.parseInt(request.params(":id"))));
     }
 
-    // Única versão mantida do interagirComentario (a nova, com verificação de login)
     public Object interagirComentario(Request request, Response response) {
         Integer usuarioId = request.session().attribute("usuario_logado");
         response.type("application/json");
@@ -73,5 +82,13 @@ public class ForumService {
 
         boolean success = comentarioDAO.interagir(Integer.parseInt(request.params(":id")), usuarioId, request.params(":tipo"));
         return success ? "{\"success\": true}" : "{\"success\": false}";
+    }
+
+    // --- NOVO: MÉTODO PARA ATUALIZAR COMENTÁRIO ---
+    public Object updateComentario(Request request, Response response) {
+        int id = Integer.parseInt(request.params(":id"));
+        String conteudo = request.queryParams("conteudo");
+        response.type("application/json");
+        return comentarioDAO.update(id, conteudo) ? "{\"success\": true}" : "{\"success\": false}";
     }
 }
