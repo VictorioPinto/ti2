@@ -1,0 +1,60 @@
+/* Estilos do FAQ Accordion */
+.faq-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.faq-item {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.faq-item:hover {
+  border-color: #0056b3;
+}
+
+.faq-question {
+  padding: 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #1a202c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.faq-question i {
+  transition: transform 0.3s ease;
+  color: #0056b3;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease-out,
+    padding 0.3s ease;
+  padding: 0 20px;
+  background-color: #f8fafc;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+/* Estado quando o card está aberto/ativo */
+.faq-item.active .faq-question i {
+  transform: rotate(180deg);
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px; /* Limite seguro para o texto expandir */
+  padding: 0 20px 20px 20px;
+  border-top: 1px solid #edf2f7;
+}
