@@ -109,14 +109,22 @@ async function carregarComentarios() {
 
 async function interagir(entidade, id, tipo, event) {
   if (event) event.stopPropagation();
+  
+  const url = entidade === "topico"
+      ? `http://localhost:8080/forum/topico/${id}/${tipo}`
+      : `http://localhost:8080/forum/comentario/${id}/${tipo}`;
+
   try {
-    const res = await fetch(
-      `http://localhost:8080/forum/${entidade}/${id}/${tipo}`,
-      { method: "POST" },
-    );
-    if (res.ok) {
-      const el = document.getElementById(`${tipo}-${entidade}-${id}`);
-      if (el) el.innerText = parseInt(el.innerText) + 1;
+    const res = await fetch(url, { method: "POST" });
+    const result = await res.json();
+    
+    if (res.ok && result.success) {
+      // Recarrega a página para exibir os novos valores contabilizados pelo banco
+      location.reload(); 
+    } else {
+      if (res.status === 401) {
+         alert("Você precisa fazer login para interagir!");
+      }
     }
   } catch (error) {
     console.error("Erro ao registrar interação:", error);

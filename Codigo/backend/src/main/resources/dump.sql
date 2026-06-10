@@ -24,7 +24,7 @@ CREATE TABLE public.niveis_trilha (
     descricao TEXT
 );
 
--- Tabela: usuarios (Substituindo pontos por streak_days)
+-- Tabela: usuarios (Substituindo pontos por streak_days e nível por quiz liberado)
 CREATE TABLE public.usuarios (
     id SERIAL PRIMARY KEY,
     login VARCHAR(50) UNIQUE NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE public.usuarios (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     streak_days INTEGER DEFAULT 0, -- Sistema de ofensiva
-    nivel_atual_id INTEGER DEFAULT 1 REFERENCES public.niveis_trilha(id),
+    quiz_liberado_maximo INTEGER DEFAULT 1, -- Define até qual quiz o utilizador tem acesso livre (1, 15, 30, etc)
     data_ultimo_acesso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     adm BOOLEAN DEFAULT FALSE -- Flag de administrador
 );
@@ -46,14 +46,20 @@ CREATE TABLE public.questionario_diagnostico (
     data_realizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela: quizzes
+-- Tabela: quizzes (Removido nivel_id, agora os quizzes vão de 1 a 100)
 CREATE TABLE public.quizzes (
     id SERIAL PRIMARY KEY,
-    nivel_id INTEGER REFERENCES public.niveis_trilha(id),
     titulo VARCHAR(255) NOT NULL
 );
 
--- Tabela: perguntas
+-- Tabela: usuario_quizzes_feitos (Rastreia quais quizzes o utilizador já completou de facto)
+CREATE TABLE public.usuario_quizzes_feitos (
+    usuario_id INTEGER REFERENCES public.usuarios(id),
+    quiz_id INTEGER REFERENCES public.quizzes(id),
+    data_conclusao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (usuario_id, quiz_id)
+);
+
 -- Tabela: perguntas
 CREATE TABLE public.perguntas (
     id SERIAL PRIMARY KEY,
@@ -116,11 +122,12 @@ CREATE TABLE public.faq (
 -- Permissões
 -- -----------------------------------------------------
 
--- Ajuste o 'wise' para o seu nome de usuário do pgAdmin se for diferente
+-- Ajuste o 'wise' para o seu nome de utilizador do pgAdmin se for diferente
 ALTER TABLE public.niveis_trilha OWNER TO wise;
 ALTER TABLE public.usuarios OWNER TO wise;
 ALTER TABLE public.questionario_diagnostico OWNER TO wise;
 ALTER TABLE public.quizzes OWNER TO wise;
+ALTER TABLE public.usuario_quizzes_feitos OWNER TO wise;
 ALTER TABLE public.perguntas OWNER TO wise;
 ALTER TABLE public.opcoes_pergunta OWNER TO wise;
 ALTER TABLE public.forum_topicos OWNER TO wise;

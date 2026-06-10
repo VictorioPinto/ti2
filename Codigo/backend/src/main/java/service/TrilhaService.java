@@ -15,7 +15,6 @@ public class TrilhaService {
 
 	public Object listarQuizzesDoUsuario(Request request, Response response) {
 	    response.type("application/json");
-	    
 	    Integer idLogado = request.session().attribute("usuario_logado");
 	    
 	    if (idLogado == null) {
@@ -24,26 +23,25 @@ public class TrilhaService {
 	    }
 
 	    Usuario usuario = usuarioDAO.get(idLogado);
-	    int nivelUsuario = usuario.getNivelAtualId();
+	    int maxLiberado = usuario.getQuizLiberadoMaximo(); // Pega do BD
 	    
 	    List<Quiz> quizzes = quizDAO.getAllQuizzes();
-	    
+	    List<Integer> feitos = quizDAO.getQuizzesFeitos(idLogado); // IDs concluídos
 	    
 	    StringBuilder json = new StringBuilder("[");
 	    for (int i = 0; i < quizzes.size(); i++) {
 	        Quiz q = quizzes.get(i);
 	        
-	        
 	        String status = "bloqueado";
-	        if (q.getNivelId() < nivelUsuario) {
+	        
+	        if (feitos.contains(q.getId())) {
 	            status = "feito";
-	        } else if (q.getNivelId() == nivelUsuario) {
-	            status = "liberado";
+	        } else if (q.getId() <= maxLiberado) {
+	            status = "liberado"; // Pode clicar e fazer, mas não tá marcado verde ainda
 	        }
 	        
 	        json.append("{")
 	            .append("\"id\": ").append(q.getId()).append(",")
-	            .append("\"nivel_id\": ").append(q.getNivelId()).append(",")
 	            .append("\"titulo\": \"").append(q.getTitulo()).append("\",")
 	            .append("\"status\": \"").append(status).append("\"")
 	            .append("}");

@@ -47,7 +47,7 @@ public class QuizService {
         
         String githubToken = System.getenv("GITHUB_TOKEN");
         if (githubToken == null || githubToken.trim().isEmpty()) {
-            githubToken = ""; 
+            githubToken = "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"; 
         }
         
         String githubEndpoint = "https://models.inference.ai.azure.com/chat/completions";
@@ -110,6 +110,36 @@ public class QuizService {
             System.err.println("Erro ao processar a avaliação: " + e.getMessage());
             response.status(500);
             return "{\"success\": false, \"message\": \"Erro interno ao processar a avaliação com a IA.\"}";
+        }
+    }
+    public Object concluirQuiz(Request request, Response response) {
+        Integer usuarioId = request.session().attribute("usuario_logado");
+        int quizId = Integer.parseInt(request.params(":id"));
+        
+        if(usuarioId != null) {
+            quizDAO.registrarQuizFeito(usuarioId, quizId);
+        }
+        
+        response.status(200);
+        return "{\"success\": true}";
+    }
+    public Object atualizar(Request request, Response response) {
+        int quizId;
+        try {
+            quizId = Integer.parseInt(request.params(":id"));
+        } catch (NumberFormatException e) {
+            response.status(400);
+            return "{\"success\": false, \"erro\": \"ID inválido\"}";
+        }
+
+        JsonObject dados = JsonParser.parseString(request.body()).getAsJsonObject();
+        
+        if (quizDAO.atualizarQuizCompleto(quizId, dados)) {
+            response.status(200);
+            return "{\"success\": true}";
+        } else {
+            response.status(500);
+            return "{\"success\": false}";
         }
     }
 }

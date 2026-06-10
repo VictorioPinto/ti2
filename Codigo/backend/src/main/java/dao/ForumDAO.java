@@ -53,17 +53,61 @@ public class ForumDAO extends DAO {
         return topico;
     }
 
-    public boolean interagir(int id, String tipo) {
+    public boolean interagir(int topicoId, int usuarioId, String tipo) {
         boolean status = false;
         try {
-            String coluna = tipo.equals("like") ? "likes" : "dislikes";
-            String sql = "UPDATE forum_topicos SET " + coluna + " = " + coluna + " + 1 WHERE id = ?";
-            PreparedStatement st = conexao.prepareStatement(sql);
-            st.setInt(1, id);
-            st.executeUpdate();
-            st.close();
-            status = true;
-        } catch (SQLException u) { throw new RuntimeException(u); }
+            // Verifica se o usuário já interagiu com esse tópico
+            String sqlVerifica = "SELECT tipo FROM forum_topico_likes WHERE usuario_id = ? AND topico_id = ?";
+            PreparedStatement stVerifica = conexao.prepareStatement(sqlVerifica);
+            stVerifica.setInt(1, usuarioId);
+            stVerifica.setInt(2, topicoId);
+            ResultSet rs = stVerifica.executeQuery();
+
+            if (rs.next()) {
+                String tipoAtual = rs.getString("tipo");
+                // Se o usuário clicou numa opção diferente da que ele já tinha (ex: mudou de like para dislike)
+                if (!tipoAtual.equals(tipo)) {
+                    String sqlUpdate = "UPDATE forum_topico_likes SET tipo = ? WHERE usuario_id = ? AND topico_id = ?";
+                    PreparedStatement stUpdate = conexao.prepareStatement(sqlUpdate);
+                    stUpdate.setString(1, tipo);
+                    stUpdate.setInt(2, usuarioId);
+                    stUpdate.setInt(3, topicoId);
+                    stUpdate.executeUpdate();
+                    stUpdate.close();
+                    
+                    // Ajusta a contagem: +1 no novo voto e -1 no antigo
+                    String colunaMais = tipo.equals("like") ? "likes" : "dislikes";
+                    String colunaMenos = tipo.equals("like") ? "dislikes" : "likes";
+                    String sqlCount = "UPDATE forum_topicos SET " + colunaMais + " = " + colunaMais + " + 1, " + colunaMenos + " = " + colunaMenos + " - 1 WHERE id = ?";
+                    PreparedStatement stCount = conexao.prepareStatement(sqlCount);
+                    stCount.setInt(1, topicoId);
+                    stCount.executeUpdate();
+                    stCount.close();
+                    status = true;
+                }
+            } else {
+                // É o primeiro voto do usuário neste tópico
+                String sqlInsert = "INSERT INTO forum_topico_likes (usuario_id, topico_id, tipo) VALUES (?, ?, ?)";
+                PreparedStatement stInsert = conexao.prepareStatement(sqlInsert);
+                stInsert.setInt(1, usuarioId);
+                stInsert.setInt(2, topicoId);
+                stInsert.setString(3, tipo);
+                stInsert.executeUpdate();
+                stInsert.close();
+
+                // Soma 1 no contador
+                String coluna = tipo.equals("like") ? "likes" : "dislikes";
+                String sqlCount = "UPDATE forum_topicos SET " + coluna + " = " + coluna + " + 1 WHERE id = ?";
+                PreparedStatement stCount = conexao.prepareStatement(sqlCount);
+                stCount.setInt(1, topicoId);
+                stCount.executeUpdate();
+                stCount.close();
+                status = true;
+            }
+            stVerifica.close();
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
         return status;
     }
 }

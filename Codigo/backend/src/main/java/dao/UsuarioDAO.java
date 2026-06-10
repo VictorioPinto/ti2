@@ -19,7 +19,8 @@ public class UsuarioDAO extends DAO {
     public boolean insert(Usuario usuario) {
         boolean status = false;
         try {
-            String sql = "INSERT INTO usuarios (login, senha, nome, email, streak_days, nivel_atual_id, adm) VALUES (?, ?, ?, ?, ?, ?, ?);";
+            // Alterado de nivel_atual_id para quiz_liberado_maximo
+            String sql = "INSERT INTO usuarios (login, senha, nome, email, streak_days, quiz_liberado_maximo, adm) VALUES (?, ?, ?, ?, ?, ?, ?);";
             
             PreparedStatement st = conexao.prepareStatement(sql);
             st.setString(1, usuario.getLogin());
@@ -27,7 +28,7 @@ public class UsuarioDAO extends DAO {
             st.setString(3, usuario.getNome());
             st.setString(4, usuario.getEmail());
             st.setInt(5, usuario.getStreakDays());
-            st.setInt(6, usuario.getNivelAtualId());
+            st.setInt(6, usuario.getQuizLiberadoMaximo()); // Atualizado para o novo atributo
             st.setBoolean(7, usuario.isAdm()); 
             
             st.executeUpdate();
@@ -55,7 +56,7 @@ public class UsuarioDAO extends DAO {
                     rs.getString("nome"),
                     rs.getString("email"),
                     rs.getInt("streak_days"),
-                    rs.getInt("nivel_atual_id"),
+                    rs.getInt("quiz_liberado_maximo"), // Alterado para buscar a nova coluna
                     rs.getBoolean("adm")
                 );
             }
@@ -97,8 +98,8 @@ public class UsuarioDAO extends DAO {
                     rs.getString("nome"),
                     rs.getString("email"),
                     rs.getInt("streak_days"),
-                    rs.getInt("nivel_atual_id"),
-                    rs.getBoolean("adm") // Puxando o ADM do banco
+                    rs.getInt("quiz_liberado_maximo"), // Alterado para buscar a nova coluna
+                    rs.getBoolean("adm") 
                 );
                 usuarios.add(u);
             }
@@ -112,17 +113,17 @@ public class UsuarioDAO extends DAO {
     public boolean update(Usuario usuario) {
         boolean status = false;
         try {
-            // Atualizado para incluir o ADM no update
-            String sql = "UPDATE usuarios SET login = ?, senha = ?, nome = ?, email = ?, streak_days = ?, nivel_atual_id = ?, data_ultimo_acesso = ?, adm = ? WHERE id = ?";
+            // Alterado de nivel_atual_id para quiz_liberado_maximo
+            String sql = "UPDATE usuarios SET login = ?, senha = ?, nome = ?, email = ?, streak_days = ?, quiz_liberado_maximo = ?, data_ultimo_acesso = ?, adm = ? WHERE id = ?";
             PreparedStatement st = conexao.prepareStatement(sql);
             st.setString(1, usuario.getLogin());
             st.setString(2, usuario.getSenha());
             st.setString(3, usuario.getNome());
             st.setString(4, usuario.getEmail());
             st.setInt(5, usuario.getStreakDays());
-            st.setInt(6, usuario.getNivelAtualId());
+            st.setInt(6, usuario.getQuizLiberadoMaximo()); // Atualizado para o novo atributo
             st.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
-            st.setBoolean(8, usuario.isAdm()); // Atualizando o ADM
+            st.setBoolean(8, usuario.isAdm()); 
             st.setInt(9, usuario.getId());
             
             st.executeUpdate();
@@ -166,8 +167,8 @@ public class UsuarioDAO extends DAO {
                     rs.getString("nome"),
                     rs.getString("email"),
                     rs.getInt("streak_days"),
-                    rs.getInt("nivel_atual_id"),
-                    rs.getBoolean("adm") // Puxando o ADM do banco
+                    rs.getInt("quiz_liberado_maximo"), // Alterado para buscar a nova coluna
+                    rs.getBoolean("adm") 
                 );
             }
             st.close();
@@ -198,7 +199,7 @@ public class UsuarioDAO extends DAO {
     public boolean salvarQuestionario(int usuarioId, String respostasJson, int nivelSugerido) {
         boolean status = false;
         try {
-            
+            // Salva as respostas para histórico de IA
             String sql = "INSERT INTO questionario_diagnostico (usuario_id, respostas_json, nivel_sugerido_ia) VALUES (?, ?, ?)";
             PreparedStatement st = conexao.prepareStatement(sql);
             st.setInt(1, usuarioId);
@@ -207,10 +208,18 @@ public class UsuarioDAO extends DAO {
             st.executeUpdate();
             st.close();
             
+            // Lógica de libertação de Quizzes dependendo do Nível da IA (1, 2 ou 3)
+            int quizInicialLiberado = 1; // Padrão Nível 1
+            if (nivelSugerido == 2) {
+                quizInicialLiberado = 15;
+            } else if (nivelSugerido == 3) {
+                quizInicialLiberado = 30;
+            }
             
-            String sqlUpdate = "UPDATE usuarios SET nivel_atual_id = ? WHERE id = ?";
+            // Atualiza a coluna nova do utilizador definindo o marco de libertação
+            String sqlUpdate = "UPDATE usuarios SET quiz_liberado_maximo = ? WHERE id = ?";
             PreparedStatement stUpdate = conexao.prepareStatement(sqlUpdate);
-            stUpdate.setInt(1, nivelSugerido);
+            stUpdate.setInt(1, quizInicialLiberado);
             stUpdate.setInt(2, usuarioId);
             stUpdate.executeUpdate();
             stUpdate.close();

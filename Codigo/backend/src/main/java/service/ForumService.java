@@ -1,4 +1,5 @@
 package service;
+
 import dao.ForumDAO;
 import dao.ComentarioDAO;
 import model.ForumTopico;
@@ -33,8 +34,16 @@ public class ForumService {
     }
 
     public Object interagirTopico(Request request, Response response) {
+        Integer usuarioId = request.session().attribute("usuario_logado");
         response.type("application/json");
-        return forumDAO.interagir(Integer.parseInt(request.params(":id")), request.params(":tipo")) ? "{\"success\": true}" : "{\"success\": false}";
+
+        if (usuarioId == null) {
+            response.status(401); // Não autorizado
+            return "{\"success\": false, \"message\": \"Você precisa fazer login para curtir.\"}";
+        }
+
+        boolean success = forumDAO.interagir(Integer.parseInt(request.params(":id")), usuarioId, request.params(":tipo"));
+        return success ? "{\"success\": true}" : "{\"success\": false}";
     }
 
     // --- MÉTODOS DE COMENTÁRIOS ---
@@ -52,8 +61,17 @@ public class ForumService {
         return gson.toJson(comentarioDAO.getByTopicoId(Integer.parseInt(request.params(":id"))));
     }
 
+    // Única versão mantida do interagirComentario (a nova, com verificação de login)
     public Object interagirComentario(Request request, Response response) {
+        Integer usuarioId = request.session().attribute("usuario_logado");
         response.type("application/json");
-        return comentarioDAO.interagir(Integer.parseInt(request.params(":id")), request.params(":tipo")) ? "{\"success\": true}" : "{\"success\": false}";
+
+        if (usuarioId == null) {
+            response.status(401);
+            return "{\"success\": false, \"message\": \"Você precisa fazer login para curtir.\"}";
+        }
+
+        boolean success = comentarioDAO.interagir(Integer.parseInt(request.params(":id")), usuarioId, request.params(":tipo"));
+        return success ? "{\"success\": true}" : "{\"success\": false}";
     }
 }

@@ -40,9 +40,11 @@ public class Aplicacao {
 
         // --- Rotas de Quiz e Questionário ---
         get("/quiz/:id/perguntas", (request, response) -> quizService.getPerguntasQuiz(request, response));
+        post("/quiz/:id/concluir", (request, response) -> quizService.concluirQuiz(request, response)); 
         post("/quiz/cadastrar", (request, response) -> quizService.cadastrar(request, response));
         post("/questionario/avaliar-aberta", (request, response) -> quizService.avaliarRespostaAberta(request, response));
         post("/questionario/salvar", (request, response) -> usuarioService.avaliarDiagnostico(request, response));
+        post("/quiz/:id/atualizar", (request, response) -> quizService.atualizar(request, response));
 
         // --- Rotas FAQ ---
         post("/faq/insert", (request, response) -> faqService.insert(request, response));

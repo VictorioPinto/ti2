@@ -147,10 +147,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (indiceAtual + 1 < perguntas.length) {
             btnProxima.style.display = "block";
         } else {
-            
             btnVoltarTrilha.style.display = "block";
-            const aprovacao = (acertos / perguntas.length) >= 0.7 ? "Aprovado!" : "Tente novamente.";
+            
+            // Lógica de aprovação (70% de acertos)
+            const aprovado = (acertos / perguntas.length) >= 0.7;
+            const aprovacao = aprovado ? "Aprovado!" : "Tente novamente.";
             areaPergunta.innerHTML += `<hr><h3 style="margin-top:20px; text-align:center;">Fim do Quiz! Acertou ${acertos} de ${perguntas.length}. ${aprovacao}</h3>`;
+            
+            // NOVO: Notifica o backend se o utilizador foi aprovado
+            if (aprovado) {
+                fetch(`http://localhost:8080/quiz/${quizId}/concluir`, {
+                    method: "POST"
+                }).catch(err => console.error("Erro ao registar a conclusão do quiz:", err));
+            }
         }
     }
 

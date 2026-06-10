@@ -3,7 +3,7 @@ package dao;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import model.Quiz; // Importante: Garanta que esta importação existe
+import model.Quiz; 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +14,17 @@ public class QuizDAO extends DAO {
         conectar();
     }
 
-    // --- MÉTODO QUE ESTAVA FALTANDO ---
+    // --- MÉTODO ATUALIZADO (Removido o nivel_id) ---
     public List<Quiz> getAllQuizzes() {
         List<Quiz> quizzes = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM quizzes ORDER BY nivel_id ASC";
+            // Ordenamos simplesmente pelo id (que vai de 1 a 100)
+            String sql = "SELECT * FROM quizzes ORDER BY id ASC";
             Statement st = conexao.createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
-                quizzes.add(new Quiz(rs.getInt("id"), rs.getInt("nivel_id"), rs.getString("titulo")));
+                // Instancia apenas com ID e Título
+                quizzes.add(new Quiz(rs.getInt("id"), rs.getString("titulo")));
             }
             st.close();
         } catch (Exception e) {
@@ -31,19 +33,19 @@ public class QuizDAO extends DAO {
         return quizzes;
     }
 
+    // --- MÉTODO ATUALIZADO (Removido o nivel_id do INSERT) ---
     public boolean cadastrarQuizCompleto(JsonObject dados) {
         try {
             conexao.setAutoCommit(false); 
             
-            String sqlQuiz = "INSERT INTO quizzes (nivel_id, titulo) VALUES (?, ?) RETURNING id";
+            // O INSERT agora só precisa do titulo
+            String sqlQuiz = "INSERT INTO quizzes (titulo) VALUES (?) RETURNING id";
             PreparedStatement stQuiz = conexao.prepareStatement(sqlQuiz);
-            stQuiz.setInt(1, dados.get("nivel_id").getAsInt());
-            stQuiz.setString(2, dados.get("titulo").getAsString());
+            stQuiz.setString(1, dados.get("titulo").getAsString());
             ResultSet rsQuiz = stQuiz.executeQuery();
             rsQuiz.next();
             int quizId = rsQuiz.getInt(1);
 
-            
             JsonArray perguntas = dados.getAsJsonArray("perguntas");
             for (JsonElement pEl : perguntas) {
                 JsonObject p = pEl.getAsJsonObject();
@@ -57,7 +59,6 @@ public class QuizDAO extends DAO {
                 rsP.next();
                 int perguntaId = rsP.getInt(1);
 
-                
                 if (p.get("tipo").getAsString().equals("FECHADA")) {
                     JsonArray opcoes = p.getAsJsonArray("opcoes");
                     int idOpcaoCorreta = -1;
@@ -133,5 +134,119 @@ public class QuizDAO extends DAO {
             System.err.println("Erro ao buscar perguntas: " + e.getMessage());
         }
         return perguntasArray;
+    }
+
+    // --- NOVOS MÉTODOS PARA O SISTEMA DE PROGRESSÃO ---
+
+    // Retorna uma lista com os IDs dos quizzes que o utilizador já completou
+    public List<Integer> getQuizzesFeitos(int usuarioId) {
+        List<Integer> feitos = new ArrayList<>();
+        try {
+            String sql = "SELECT quiz_id FROM usuario_quizzes_feitos WHERE usuario_id = ?";
+            PreparedStatement st = conexao.prepareStatement(sql);
+            st.setInt(1, usuarioId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                feitos.add(rs.getInt("quiz_id"));
+            }
+            st.close();
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar quizzes feitos: " + e.getMessage());
+        }
+        return feitos;
+    }
+
+    // Quando o utilizador acerta o quiz, marca como concluído no banco de dados e liberta o próximo (caso seja o limite)
+    public void registrarQuizFeito(int usuarioId, int quizId) {
+        try {
+            // Tenta inserir na tabela de progresso. O ON CONFLICT DO NOTHING evita duplicados caso o utilizador refaça o quiz
+            String sql = "INSERT INTO usuario_quizzes_feitos (usuario_id, quiz_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
+            PreparedStatement st = conexao.prepareStatement(sql);
+            st.setInt(1, usuarioId);
+            st.setInt(2, quizId);
+            st.executeUpdate();
+            st.close();
+            
+            // Se o quiz atual era o último que ele tinha liberado, liberta o próximo (quizId + 1)
+            // Utiliza o GREATEST para garantir que não reduzimos o nível caso o utilizador refaça um quiz muito antigo
+            String sqlUpdate = "UPDATE usuarios SET quiz_liberado_maximo = GREATEST(quiz_liberado_maximo, ?) WHERE id = ?";
+            PreparedStatement stUp = conexao.prepareStatement(sqlUpdate);
+            stUp.setInt(1, quizId + 1);
+            stUp.setInt(2, usuarioId);
+            stUp.executeUpdate();
+            stUp.close();
+            
+        } catch (Exception e) {
+            System.err.println("Erro ao registar quiz feito: " + e.getMessage());
+        }
+    }
+ // --- NOVO: MÉTODO PARA ATUALIZAR UM QUIZ ---
+    public boolean atualizarQuizCompleto(int quizId, JsonObject dados) {
+        try {
+            conexao.setAutoCommit(false); 
+            
+            // 1. Atualiza o título do Quiz
+            String sqlQuiz = "UPDATE quizzes SET titulo = ? WHERE id = ?";
+            PreparedStatement stQuiz = conexao.prepareStatement(sqlQuiz);
+            stQuiz.setString(1, dados.get("titulo").getAsString());
+            stQuiz.setInt(2, quizId);
+            stQuiz.executeUpdate();
+
+            // 2. Apaga as opções e as perguntas antigas deste quiz para evitar duplicação ou falha nas referências
+            String sqlDelOpcoes = "DELETE FROM opcoes_pergunta WHERE pergunta_id IN (SELECT id FROM perguntas WHERE quiz_id = ?)";
+            PreparedStatement stDelOpcoes = conexao.prepareStatement(sqlDelOpcoes);
+            stDelOpcoes.setInt(1, quizId);
+            stDelOpcoes.executeUpdate();
+
+            String sqlDelPerg = "DELETE FROM perguntas WHERE quiz_id = ?";
+            PreparedStatement stDelPerg = conexao.prepareStatement(sqlDelPerg);
+            stDelPerg.setInt(1, quizId);
+            stDelPerg.executeUpdate();
+
+            // 3. Re-insere as perguntas e opções vindas do formulário atualizado
+            JsonArray perguntas = dados.getAsJsonArray("perguntas");
+            for (JsonElement pEl : perguntas) {
+                JsonObject p = pEl.getAsJsonObject();
+                String sqlP = "INSERT INTO perguntas (quiz_id, pergunta, tipo, explicacao) VALUES (?, ?, ?, ?) RETURNING id";
+                PreparedStatement stP = conexao.prepareStatement(sqlP);
+                stP.setInt(1, quizId);
+                stP.setString(2, p.get("texto").getAsString());
+                stP.setString(3, p.get("tipo").getAsString());
+                stP.setString(4, p.get("explicacao").getAsString());
+                ResultSet rsP = stP.executeQuery();
+                rsP.next();
+                int perguntaId = rsP.getInt(1);
+
+                if (p.get("tipo").getAsString().equals("FECHADA")) {
+                    JsonArray opcoes = p.getAsJsonArray("opcoes");
+                    int idOpcaoCorreta = -1;
+                    for (JsonElement oEl : opcoes) {
+                        JsonObject o = oEl.getAsJsonObject();
+                        String sqlO = "INSERT INTO opcoes_pergunta (pergunta_id, texto) VALUES (?, ?) RETURNING id";
+                        PreparedStatement stO = conexao.prepareStatement(sqlO);
+                        stO.setInt(1, perguntaId);
+                        stO.setString(2, o.get("texto").getAsString());
+                        ResultSet rsO = stO.executeQuery();
+                        rsO.next();
+                        int opcaoId = rsO.getInt(1);
+                        
+                        if (o.get("correta").getAsBoolean()) idOpcaoCorreta = opcaoId;
+                    }
+                    
+                    String sqlUpdateP = "UPDATE perguntas SET correta = ? WHERE id = ?";
+                    PreparedStatement stUp = conexao.prepareStatement(sqlUpdateP);
+                    stUp.setInt(1, idOpcaoCorreta);
+                    stUp.setInt(2, perguntaId);
+                    stUp.executeUpdate();
+                }
+            }
+
+            conexao.commit();
+            return true;
+        } catch (Exception e) {
+            try { conexao.rollback(); } catch (SQLException ex) {}
+            System.err.println("Erro ao atualizar quiz: " + e.getMessage());
+            return false;
+        }
     }
 }
