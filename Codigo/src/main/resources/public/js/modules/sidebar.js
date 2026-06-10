@@ -5,12 +5,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnLogout = document.querySelector("#btn-logout");
 
   // Caminho absoluto para a tela de login a partir da raiz do servidor static
-  const loginPageUrl = "/frontend/pages/auth/index.html"; 
+  const loginPageUrl = "/pages/auth/index.html";
 
   try {
     // 1. Verifica no backend se o usuário possui sessão ativa
     const response = await usuarioService.getUsuarioAtual();
-    
+
     if (!response.ok) {
       // Caso retorne erro ou 401 Unauthorized, redireciona imediatamente
       window.location.href = loginPageUrl;
@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       window.location.href = loginPageUrl;
     }
-
   } catch (error) {
     console.error("Erro ao validar sessão do usuário:", error);
     // Se o servidor estiver offline ou houver falha na requisição, bloqueia o acesso

@@ -1,24 +1,22 @@
 <!doctype html>
-<html lang="pt-PT">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ver Tópico</title>
-    <link rel="stylesheet" href="../../assets/css/styles.css" />
-    <link rel="stylesheet" href="../../assets/css/forum.css" />
-    <script type="module" src="../../js/modules/sidebar.js"></script>
+    <title>Notícias do Mercado - Wise Capital</title>
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/noticia.css" />
   </head>
   <body>
-    <nav class="sidebar">
+    <aside class="sidebar">
       <div class="sidebar-header">
-        <img src="../../assets/img/logoazul.jpg" alt="Logo Wise Capital" />
+        <img src="../../assets/img/logoazul.jpg" alt="Logo" class="logo" />
         <h2>Wise Capital</h2>
       </div>
-
       <ul class="sidebar-links">
         <li>
           <a href="../../index.html"><i class="fas fa-home"></i> Início</a>
@@ -28,7 +26,7 @@
             ><i class="fas fa-map-signs"></i> Trilha</a
           >
         </li>
-        <li class="active">
+        <li>
           <a href="../forum/index.html"
             ><i class="fas fa-comments"></i> Fórum</a
           >
@@ -43,18 +41,15 @@
             ><i class="fas fa-book-open"></i> Biblioteca</a
           >
         </li>
-        <li>
-          <a href="../noticias/index.html"
-            ><i class="fas fa-newspaper"></i> Notícias</a
-          >
+        <li class="active">
+          <a href="./index.html"><i class="fas fa-newspaper"></i> Notícias</a>
         </li>
         <li>
-          <a href="../faq/index.html"
+          <a href="../faq/faq.html"
             ><i class="fas fa-question-circle"></i> FAQ</a
           >
         </li>
       </ul>
-
       <div class="sidebar-footer">
         <div class="user-info">
           <i class="fas fa-user-circle"></i>
@@ -64,33 +59,21 @@
           <i class="fas fa-sign-out-alt"></i> Sair
         </button>
       </div>
-    </nav>
+    </aside>
 
     <main class="main-content">
-      <div class="topic-container">
-        <a href="index.html" style="text-decoration: none; color: #0056b3"
-          >&larr; Voltar ao Fórum</a
-        >
+      <h1>Mercado Financeiro em Tempo Real</h1>
+      <p style="margin-bottom: 20px; color: #64748b">
+        Fica a par das últimas novidades e tendências económicas.
+      </p>
 
-        <div id="post-principal" style="margin-top: 20px"></div>
-
-        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd" />
-
-        <h3>Comentários</h3>
-        <form id="form-comentario" class="form-comentario-container">
-          <input
-            type="text"
-            id="texto-comentario"
-            placeholder="Escreve um comentário..."
-            required
-          />
-          <button type="submit" class="btn-comentar">Comentar</button>
-        </form>
-
-        <div id="lista-comentarios"></div>
+      <div id="loading-news" class="loading">
+        <i class="fas fa-spinner fa-spin"></i> A carregar as últimas notícias...
       </div>
+      <div id="news-container" class="noticias-grid"></div>
     </main>
 
-    <script type="module" src="../../js/modules/forumTopico.js"></script>
+    <script type="module" src="../../js/modules/noticiasUI.js"></script>
+    <script type="module" src="../../js/modules/sidebar.js"></script>
   </body>
 </html>
