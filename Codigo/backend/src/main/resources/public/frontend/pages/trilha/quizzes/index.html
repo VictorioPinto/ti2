@@ -1,38 +1,105 @@
 <!doctype html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wise Capital - Responder Quiz</title>
-  <link rel="stylesheet" href="../../../assets/css/styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <style>
-    /* Estilos base para a área do Quiz */
-    .quiz-container { max-width: 800px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .pergunta-titulo { font-size: 1.5rem; color: #002d5b; margin-bottom: 20px; }
-    .opcoes-container { display: flex; flex-direction: column; gap: 10px; }
-    .opcao-label { padding: 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
-    .opcao-label:hover { background: #f0f8ff; }
-    .opcao-label input { margin-right: 10px; }
-    textarea { width: 100%; height: 120px; padding: 15px; border-radius: 5px; border: 1px solid #ccc; font-family: inherit; font-size: 1rem; box-sizing: border-box; }
-    .btn-acao { margin-top: 20px; padding: 12px 20px; background: #002d5b; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
-    .btn-acao:hover { background: #0056b3; }
-    #feedback-area { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; }
-    .feedback-sucesso { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .feedback-erro { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-  </style>
-</head>
-<body>
-  <div class="quiz-container">
-    <div id="progresso">Carregando pergunta...</div>
-    <div id="area-pergunta"></div>
-    <div id="feedback-area"></div>
-    	
-    <button id="btn-responder" class="btn-acao" style="display: none;">Verificar Resposta</button>
-    <button id="btn-proxima" class="btn-acao" style="display: none;">Próxima Pergunta <i class="fas fa-arrow-right"></i></button>
-    <button id="btn-voltar-trilha" class="btn-acao" style="display: none;">Voltar para Trilha <i class="fas fa-map-signs"></i></button>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wise Capital - Responder Quiz</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Estilos base para a área do Quiz */
+      .quiz-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .pergunta-titulo {
+        font-size: 1.5rem;
+        color: #002d5b;
+        margin-bottom: 20px;
+      }
+      .opcoes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .opcao-label {
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .opcao-label:hover {
+        background: #f0f8ff;
+      }
+      .opcao-label input {
+        margin-right: 10px;
+      }
+      textarea {
+        width: 100%;
+        height: 120px;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-family: inherit;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+      .btn-acao {
+        margin-top: 20px;
+        padding: 12px 20px;
+        background: #002d5b;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+      .btn-acao:hover {
+        background: #0056b3;
+      }
+      #feedback-area {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 5px;
+        display: none;
+      }
+      .feedback-sucesso {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .feedback-erro {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="quiz-container">
+      <div id="progresso">Carregando pergunta...</div>
+      <div id="area-pergunta"></div>
+      <div id="feedback-area"></div>
 
-  <script src="../../../js/modules/Quiz.js"></script>
-</body>
+      <button id="btn-responder" class="btn-acao" style="display: none">
+        Verificar Resposta
+      </button>
+      <button id="btn-proxima" class="btn-acao" style="display: none">
+        Próxima Pergunta <i class="fas fa-arrow-right"></i>
+      </button>
+      <button id="btn-voltar-trilha" class="btn-acao" style="display: none">
+        Voltar para Trilha <i class="fas fa-map-signs"></i>
+      </button>
+    </div>
+
+    <script src="../../../js/modules/Quiz.js"></script>
+  </body>
 </html>
