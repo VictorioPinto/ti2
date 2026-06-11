@@ -103,4 +103,28 @@ public class ComentarioDAO extends DAO {
         } catch (SQLException u) { throw new RuntimeException(u); }
         return status;
     }
+ // --- NOVO: MÉTODO PARA DELETAR UM COMENTÁRIO ---
+    public boolean delete(int id) {
+        boolean status = false;
+        try {
+            // Apaga as curtidas do comentário primeiro
+            String sqlDelLikes = "DELETE FROM forum_comentario_likes WHERE comentario_id = ?";
+            PreparedStatement stDelLikes = conexao.prepareStatement(sqlDelLikes);
+            stDelLikes.setInt(1, id);
+            stDelLikes.executeUpdate();
+            stDelLikes.close();
+
+            // Apaga o comentário
+            String sql = "DELETE FROM forum_comentarios WHERE id = ?";
+            PreparedStatement st = conexao.prepareStatement(sql);
+            st.setInt(1, id);
+            st.executeUpdate();
+            st.close();
+            
+            status = true;
+        } catch (SQLException u) { 
+            throw new RuntimeException(u); 
+        }
+        return status;
+    }
 }

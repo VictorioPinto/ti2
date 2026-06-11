@@ -26,10 +26,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           : `<p style="margin-top: 10px; color: #555;">${t.conteudo.substring(0, 150)}...</p>`;
 
       // Se for dono do post ou Adm, mostra o botão de edição
-      let btnEdit = "";
-      if (usuarioLogadoId === t.usuarioId || isAdm) {
-        btnEdit = `<button onclick="editarTopico(event, ${t.id})" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 18px;" title="Editar Tópico">✏️</button>`;
-      }
+	  let btnEdit = "";
+	        let btnDelete = "";
+	        if (usuarioLogadoId === t.usuarioId || isAdm) {
+	          btnEdit = `<button onclick="editarTopico(event, ${t.id})" style="position: absolute; top: 15px; right: 45px; background: none; border: none; cursor: pointer; font-size: 18px;" title="Editar Tópico">✏️</button>`;
+	          btnDelete = `<button onclick="deletarTopico(event, ${t.id})" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 18px; color: red;" title="Excluir Tópico">🗑️</button>`;
+	        }
 
       feed.innerHTML += `
                 <div class="forum-card" onclick="window.location.href='topico.html?id=${t.id}'" style="position: relative;">
@@ -73,4 +75,22 @@ window.interagir = interagir;
 window.editarTopico = (event, id) => {
   event.stopPropagation();
   window.location.href = `novo_topico.html?edit=${id}`;
+};
+window.deletarTopico = async (event, id) => {
+  event.stopPropagation();
+  if (confirm("Tem certeza que deseja excluir este tópico? Todos os comentários serão perdidos.")) {
+    try {
+      const res = await fetch(`http://localhost:8080/forum/delete/${id}`);
+      const result = await res.json();
+      if (result.success) {
+        alert("Tópico excluído com sucesso!");
+        location.reload();
+      } else {
+        alert("Erro ao excluir o tópico.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Falha na comunicação com o servidor.");
+    }
+  }
 };

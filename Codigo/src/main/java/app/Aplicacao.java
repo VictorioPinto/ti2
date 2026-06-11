@@ -67,12 +67,15 @@ get("/biblioteca/delete/:id", (request, response) -> materialService.delete(requ
         get("/forum", (req, res) -> forumService.listarTodos(req, res));
         get("/forum/:id", (req, res) -> forumService.getTopico(req, res));
         post("/forum/topico/:id/:tipo", (req, res) -> forumService.interagirTopico(req, res));
+        get("/forum/delete/:id", (req, res) -> forumService.deleteTopico(req, res));
+        
 
         // --- Rotas de Comentários ---
         post("/forum/comentario/:id/atualizar", (req, res) -> forumService.updateComentario(req, res));
         post("/forum/:id/comentarios/insert", (req, res) -> forumService.addComentario(req, res));
         get("/forum/:id/comentarios", (req, res) -> forumService.listarComentarios(req, res));
         post("/forum/comentario/:id/:tipo", (req, res) -> forumService.interagirComentario(req, res));
+        get("/forum/comentario/delete/:id", (req, res) -> forumService.deleteComentario(req, res));
         
         
         // Corrigido para refletir a porta 8081 configurada no topo do arquivo

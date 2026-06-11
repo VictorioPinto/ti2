@@ -26,12 +26,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const topico = await resTopico.json();
 
     // Se for dono do tópico, permite editar o Post principal
+    // Se for dono do tópico, permite editar ou excluir o Post principal
     let btnEditTopico = "";
+    let btnDeleteTopico = "";
     if (usuarioLogadoId === topico.usuarioId || isAdm) {
-      btnEditTopico = `<button onclick="window.location.href='novo_topico.html?edit=${topico.id}'" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px;" title="Editar Tópico">✏️</button>`;
+      btnEditTopico = `<button onclick="window.location.href='novo_topico.html?edit=${topico.id}'" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; margin-left: 10px;" title="Editar Tópico">✏️</button>`;
+      btnDeleteTopico = `<button onclick="deletarTopicoPost(${topico.id})" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; color: red;" title="Excluir Tópico">🗑️</button>`;
     }
 
-    let htmlTopico = `${btnEditTopico}<h1 style="margin-bottom: 10px; padding-right: 30px;">${topico.titulo}</h1>`;
+    let htmlTopico = `<div style="overflow: auto;">${btnDeleteTopico}${btnEditTopico}</div><h1 style="margin-bottom: 10px; padding-right: 30px;">${topico.titulo}</h1>`;
     if (topico.imagemUrl) {
       htmlTopico += `<img src="${topico.imagemUrl}" style="max-width: 100%; border-radius: 8px; margin-bottom: 15px;" alt="Imagem do Post">`;
     }

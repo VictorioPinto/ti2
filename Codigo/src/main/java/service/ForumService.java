@@ -91,4 +91,17 @@ public class ForumService {
         response.type("application/json");
         return comentarioDAO.update(id, conteudo) ? "{\"success\": true}" : "{\"success\": false}";
     }
+ // --- NOVO: ROTA PARA DELETAR TÓPICO ---
+    public Object deleteTopico(Request request, Response response) {
+        int id = Integer.parseInt(request.params(":id"));
+        response.type("application/json");
+        return forumDAO.delete(id) ? "{\"success\": true}" : "{\"success\": false}";
+    }
+
+    // --- NOVO: ROTA PARA DELETAR COMENTÁRIO ---
+    public Object deleteComentario(Request request, Response response) {
+        int id = Integer.parseInt(request.params(":id"));
+        response.type("application/json");
+        return comentarioDAO.delete(id) ? "{\"success\": true}" : "{\"success\": false}";
+    }
 }

@@ -120,4 +120,40 @@ public class ForumDAO extends DAO {
         } catch (SQLException u) { throw new RuntimeException(u); }
         return status;
     }
+ // --- NOVO: MÉTODO PARA DELETAR UM TÓPICO ---
+    public boolean delete(int id) {
+        boolean status = false;
+        try {
+            // Primeiro deleta as curtidas e comentários associados (para evitar conflito de chave estrangeira)
+            String sqlDelLikes = "DELETE FROM forum_topico_likes WHERE topico_id = ?";
+            PreparedStatement stDelLikes = conexao.prepareStatement(sqlDelLikes);
+            stDelLikes.setInt(1, id);
+            stDelLikes.executeUpdate();
+            stDelLikes.close();
+
+            String sqlDelComLikes = "DELETE FROM forum_comentario_likes WHERE comentario_id IN (SELECT id FROM forum_comentarios WHERE topico_id = ?)";
+            PreparedStatement stDelComLikes = conexao.prepareStatement(sqlDelComLikes);
+            stDelComLikes.setInt(1, id);
+            stDelComLikes.executeUpdate();
+            stDelComLikes.close();
+
+            String sqlDelComentarios = "DELETE FROM forum_comentarios WHERE topico_id = ?";
+            PreparedStatement stDelComentarios = conexao.prepareStatement(sqlDelComentarios);
+            stDelComentarios.setInt(1, id);
+            stDelComentarios.executeUpdate();
+            stDelComentarios.close();
+
+            // Finalmente deleta o tópico
+            String sql = "DELETE FROM forum_topicos WHERE id = ?";
+            PreparedStatement st = conexao.prepareStatement(sql);
+            st.setInt(1, id);
+            st.executeUpdate();
+            st.close();
+            
+            status = true;
+        } catch (SQLException u) { 
+            throw new RuntimeException(u); 
+        }
+        return status;
+    }
 }
