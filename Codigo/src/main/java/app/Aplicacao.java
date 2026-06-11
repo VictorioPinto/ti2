@@ -26,9 +26,9 @@ public class Aplicacao {
         // Certifique-se de que sua pasta 'frontend' está em src/main/resources/public
         staticFiles.location("/public"); 
         
-get("/biblioteca/listar", (request, response) -> materialService.listar(request, response));
-post("/biblioteca/insert", (request, response) -> materialService.insert(request, response));
-get("/biblioteca/delete/:id", (request, response) -> materialService.delete(request, response));
+        get("/biblioteca/listar", (request, response) -> materialService.listar(request, response));
+        post("/biblioteca/insert", (request, response) -> materialService.insert(request, response));
+        get("/biblioteca/delete/:id", (request, response) -> materialService.delete(request, response));
 
         // --- Rotas de Usuário ---
         post("/usuario/insert", (request, response) -> usuarioService.insert(request, response));
@@ -61,24 +61,20 @@ get("/biblioteca/delete/:id", (request, response) -> materialService.delete(requ
         put("/faq/update/:id", (request, response) -> faqService.update(request, response));
         get("/faq/delete/:id", (request, response) -> faqService.delete(request, response));
         
-     // --- Rotas de Fórum ---
-     post("/forum/topico/:id/atualizar", (req, res) -> forumService.updateTopico(req, res));
+        // --- Rotas de Fórum ---
+        post("/forum/topico/:id/atualizar", (req, res) -> forumService.updateTopico(req, res));
         post("/forum/insert", (req, res) -> forumService.insert(req, res));
         get("/forum", (req, res) -> forumService.listarTodos(req, res));
         get("/forum/:id", (req, res) -> forumService.getTopico(req, res));
         post("/forum/topico/:id/:tipo", (req, res) -> forumService.interagirTopico(req, res));
-        get("/forum/delete/:id", (req, res) -> forumService.deleteTopico(req, res));
-        
 
         // --- Rotas de Comentários ---
         post("/forum/comentario/:id/atualizar", (req, res) -> forumService.updateComentario(req, res));
         post("/forum/:id/comentarios/insert", (req, res) -> forumService.addComentario(req, res));
         get("/forum/:id/comentarios", (req, res) -> forumService.listarComentarios(req, res));
         post("/forum/comentario/:id/:tipo", (req, res) -> forumService.interagirComentario(req, res));
-        get("/forum/comentario/delete/:id", (req, res) -> forumService.deleteComentario(req, res));
+        get("/forum/comentario/delete/:id", (req, res) -> forumService.deleteComentario(req, res)); // <-- Rota nova adicionada
         
-        
-        // Corrigido para refletir a porta 8081 configurada no topo do arquivo
         System.out.println("Servidor Wise Capital rodando em http://localhost:8080");
     }
 }

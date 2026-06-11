@@ -26,20 +26,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     const topico = await resTopico.json();
 
     // Se for dono do tópico, permite editar o Post principal
-    // Se for dono do tópico, permite editar ou excluir o Post principal
     let btnEditTopico = "";
-    let btnDeleteTopico = "";
     if (usuarioLogadoId === topico.usuarioId || isAdm) {
-      btnEditTopico = `<button onclick="window.location.href='novo_topico.html?edit=${topico.id}'" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; margin-left: 10px;" title="Editar Tópico">✏️</button>`;
-      btnDeleteTopico = `<button onclick="deletarTopicoPost(${topico.id})" style="float: right; background: none; border: none; cursor: pointer; font-size: 18px; color: red;" title="Excluir Tópico">🗑️</button>`;
+      btnEditTopico = `<button onclick="window.location.href='novo_topico.html?edit=${topico.id}'" class="btn-icon btn-edit" style="float: right;" title="Editar Tópico"><i class="fas fa-edit"></i></button>`;
     }
 
-    let htmlTopico = `<div style="overflow: auto;">${btnDeleteTopico}${btnEditTopico}</div><h1 style="margin-bottom: 10px; padding-right: 30px;">${topico.titulo}</h1>`;
+    let htmlTopico = `${btnEditTopico}<h1 style="margin-bottom: 10px; padding-right: 40px; color: #0056b3;">${topico.titulo}</h1>`;
     if (topico.imagemUrl) {
-      htmlTopico += `<img src="${topico.imagemUrl}" style="max-width: 100%; border-radius: 8px; margin-bottom: 15px;" alt="Imagem do Post">`;
+      htmlTopico += `<img src="${topico.imagemUrl}" style="max-width: 100%; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" alt="Imagem do Post">`;
     }
-    htmlTopico += `<p style="font-size: 16px; line-height: 1.6; color: #333;">${topico.conteudo}</p>`;
+    htmlTopico += `<p style="font-size: 16px; line-height: 1.8; color: #444;">${topico.conteudo}</p>`;
     document.getElementById("post-principal").innerHTML = htmlTopico;
+    
+    // Atualiza o botão de comentário com ícone
+    const btnSubmit = document.querySelector(".btn-comentar");
+    if(btnSubmit) btnSubmit.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar';
+    
   } catch (error) {
     console.error("Erro ao carregar o tópico:", error);
   }
@@ -95,20 +97,24 @@ async function carregarComentarios() {
     const comentarios = await resComentarios.json();
 
     comentarios.forEach((c) => {
-      // Cria o botão de editar o comentário se for do dono
-      let btnEditComentario = "";
+      // Cria o botão de editar e excluir o comentário se for do dono ou Admin
+      let actionsHtml = "";
+      
       if (usuarioLogadoId === c.usuarioId || isAdm) {
         // Escapamos as aspas para evitar erro no HTML
-        btnEditComentario = `<button onclick="editarComentario(${c.id}, this)" data-texto="${c.conteudo.replace(/"/g, "&quot;")}" style="background: none; border: none; cursor: pointer; font-size: 14px; margin-left: 10px; color: #0056b3;" title="Editar Comentário">✏️ Editar</button>`;
+        actionsHtml = `
+            <button onclick="editarComentario(${c.id}, this)" data-texto="${c.conteudo.replace(/"/g, "&quot;")}" class="btn-icon btn-edit-comment" title="Editar Comentário"><i class="fas fa-edit"></i></button>
+            <button onclick="deletarComentario(${c.id})" class="btn-icon btn-delete-comment" title="Excluir Comentário"><i class="fas fa-trash"></i></button>
+        `;
       }
 
       lista.innerHTML += `
-                <div class="comentario" style="margin-bottom: 15px;">
-                    <p style="margin: 0 0 10px 0; color: #444;">${c.conteudo}</p>
-                    <div style="display: flex; align-items: center;">
-                        <button class="btn-interagir" onclick="interagir('comentario', ${c.id}, 'like', event)">👍 <span id="like-comentario-${c.id}">${c.likes}</span></button>
-                        <button class="btn-interagir" onclick="interagir('comentario', ${c.id}, 'dislike', event)">👎 <span id="dislike-comentario-${c.id}">${c.dislikes}</span></button>
-                        ${btnEditComentario}
+                <div class="comentario">
+                    <p style="margin: 0 0 15px 0; color: #444; line-height: 1.6;">${c.conteudo}</p>
+                    <div class="comentario-actions" style="margin-top: 0; padding-top: 10px; border-top: 1px solid #eee;">
+                        <button class="btn-action" onclick="interagir('comentario', ${c.id}, 'like', event)"><i class="fas fa-thumbs-up"></i> <span id="like-comentario-${c.id}">${c.likes}</span></button>
+                        <button class="btn-action" onclick="interagir('comentario', ${c.id}, 'dislike', event)"><i class="fas fa-thumbs-down"></i> <span id="dislike-comentario-${c.id}">${c.dislikes}</span></button>
+                        <div style="margin-left: auto;">${actionsHtml}</div>
                     </div>
                 </div>`;
     });
@@ -159,6 +165,22 @@ window.editarComentario = async (id, btnElement) => {
         location.reload();
       } else {
         alert("Erro ao atualizar o comentário.");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+};
+
+// Função para Deletar Comentário
+window.deletarComentario = async (id) => {
+  if (confirm("Tem certeza que deseja excluir este comentário?")) {
+    try {
+      const res = await fetch(`http://localhost:8080/forum/comentario/delete/${id}`);
+      if (res.ok) {
+        carregarComentarios(); // Recarrega os comentários instantaneamente
+      } else {
+        alert("Erro ao deletar o comentário.");
       }
     } catch (e) {
       console.error(e);

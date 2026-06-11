@@ -46,7 +46,6 @@ public class ForumService {
         return success ? "{\"success\": true}" : "{\"success\": false}";
     }
 
-    // --- NOVO: MÉTODO PARA ATUALIZAR TÓPICO ---
     public Object updateTopico(Request request, Response response) {
         int id = Integer.parseInt(request.params(":id"));
         String titulo = request.queryParams("titulo");
@@ -84,24 +83,23 @@ public class ForumService {
         return success ? "{\"success\": true}" : "{\"success\": false}";
     }
 
-    // --- NOVO: MÉTODO PARA ATUALIZAR COMENTÁRIO ---
     public Object updateComentario(Request request, Response response) {
         int id = Integer.parseInt(request.params(":id"));
         String conteudo = request.queryParams("conteudo");
         response.type("application/json");
         return comentarioDAO.update(id, conteudo) ? "{\"success\": true}" : "{\"success\": false}";
     }
- // --- NOVO: ROTA PARA DELETAR TÓPICO ---
-    public Object deleteTopico(Request request, Response response) {
-        int id = Integer.parseInt(request.params(":id"));
-        response.type("application/json");
-        return forumDAO.delete(id) ? "{\"success\": true}" : "{\"success\": false}";
-    }
 
-    // --- NOVO: ROTA PARA DELETAR COMENTÁRIO ---
+    // --- NOVO: MÉTODO PARA DELETAR COMENTÁRIO ---
     public Object deleteComentario(Request request, Response response) {
         int id = Integer.parseInt(request.params(":id"));
         response.type("application/json");
-        return comentarioDAO.delete(id) ? "{\"success\": true}" : "{\"success\": false}";
+        
+        if (comentarioDAO.delete(id)) {
+            return "{\"success\": true}";
+        } else {
+            response.status(500);
+            return "{\"success\": false, \"message\": \"Erro ao deletar comentário.\"}";
+        }
     }
 }

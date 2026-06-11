@@ -11,6 +11,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       const user = await resUser.json();
       usuarioLogadoId = user.id;
       isAdm = user.adm;
+      
+      // Se for administrador, exibe o botão de criar novo tópico
+      if (isAdm) {
+          const btnNovoTopico = document.getElementById("btn-novo-topico");
+          if (btnNovoTopico) {
+              btnNovoTopico.style.display = "inline-block";
+              btnNovoTopico.innerHTML = '<i class="fas fa-plus"></i> Novo Tópico';
+          }
+      }
     }
   } catch (e) {}
 
@@ -23,25 +32,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       let conteudoHTML =
         t.imagemUrl && t.imagemUrl.trim() !== ""
           ? `<img src="${t.imagemUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;" alt="Imagem do tópico">`
-          : `<p style="margin-top: 10px; color: #555;">${t.conteudo.substring(0, 150)}...</p>`;
+          : `<p style="margin-top: 10px; color: #555; line-height: 1.5;">${t.conteudo.substring(0, 150)}...</p>`;
 
       // Se for dono do post ou Adm, mostra o botão de edição
-	  let btnEdit = "";
-	        let btnDelete = "";
-	        if (usuarioLogadoId === t.usuarioId || isAdm) {
-	          btnEdit = `<button onclick="editarTopico(event, ${t.id})" style="position: absolute; top: 15px; right: 45px; background: none; border: none; cursor: pointer; font-size: 18px;" title="Editar Tópico">✏️</button>`;
-	          btnDelete = `<button onclick="deletarTopico(event, ${t.id})" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 18px; color: red;" title="Excluir Tópico">🗑️</button>`;
-	        }
+      let btnEdit = "";
+      if (usuarioLogadoId === t.usuarioId || isAdm) {
+        btnEdit = `<button onclick="editarTopico(event, ${t.id})" class="btn-icon btn-edit" style="position: absolute; top: 15px; right: 15px;" title="Editar Tópico"><i class="fas fa-edit"></i></button>`;
+      }
 
       feed.innerHTML += `
                 <div class="forum-card" onclick="window.location.href='topico.html?id=${t.id}'" style="position: relative;">
                     ${btnEdit}
-                    <h2 style="margin: 0; padding-right: 30px;">${t.titulo}</h2>
+                    <h2 style="margin: 0; padding-right: 40px;">${t.titulo}</h2>
                     ${conteudoHTML}
-                    <div class="forum-actions" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display: flex; align-items: center;">
-                        <button onclick="interagir('topico', ${t.id}, 'like', event)">👍 <span id="like-topico-${t.id}">${t.likes}</span></button>
-                        <button onclick="interagir('topico', ${t.id}, 'dislike', event)">👎 <span id="dislike-topico-${t.id}">${t.dislikes}</span></button>
-                        <span style="color: #666; font-size: 14px;">💬 ${t.quantidadeComentarios} Comentários</span>
+                    <div class="forum-actions">
+                        <button class="btn-action" onclick="interagir('topico', ${t.id}, 'like', event)"><i class="fas fa-thumbs-up"></i> <span id="like-topico-${t.id}">${t.likes}</span></button>
+                        <button class="btn-action" onclick="interagir('topico', ${t.id}, 'dislike', event)"><i class="fas fa-thumbs-down"></i> <span id="dislike-topico-${t.id}">${t.dislikes}</span></button>
+                        <span class="comments-count"><i class="fas fa-comment"></i> ${t.quantidadeComentarios} Comentários</span>
                     </div>
                 </div>`;
     });
@@ -75,22 +82,4 @@ window.interagir = interagir;
 window.editarTopico = (event, id) => {
   event.stopPropagation();
   window.location.href = `novo_topico.html?edit=${id}`;
-};
-window.deletarTopico = async (event, id) => {
-  event.stopPropagation();
-  if (confirm("Tem certeza que deseja excluir este tópico? Todos os comentários serão perdidos.")) {
-    try {
-      const res = await fetch(`http://localhost:8080/forum/delete/${id}`);
-      const result = await res.json();
-      if (result.success) {
-        alert("Tópico excluído com sucesso!");
-        location.reload();
-      } else {
-        alert("Erro ao excluir o tópico.");
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Falha na comunicação com o servidor.");
-    }
-  }
 };
