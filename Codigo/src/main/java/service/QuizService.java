@@ -58,10 +58,12 @@ public class QuizService {
 
         try {
             // 1. Inicializa o cliente do SDK
-            OpenAIClient client = OpenAIOkHttpClient.builder()
-                .baseUrl(endpoint)
-                .credential(BearerTokenCredential.create("9OBmIJGnz8bnnN97jTuEZnjrUTJGyqy23KDb315YHEHWY0J98l53JQQJ99CFACBsN54XJ3w3AAAAACOGA85u"))
-                .build();
+        	String azureKey = System.getenv("AZURE_OPENAI_KEY");
+
+        	OpenAIClient client = OpenAIOkHttpClient.builder()
+        	    .baseUrl(endpoint)
+        	    .credential(BearerTokenCredential.create(azureKey))
+        	    .build();
 
             // 2. Constrói as mensagens para o modelo
             ChatCompletionCreateParams createParams = ChatCompletionCreateParams.builder()

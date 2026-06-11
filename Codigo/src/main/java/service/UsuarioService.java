@@ -27,11 +27,12 @@ public class UsuarioService {
 
         try {
             // 1. Inicializa o cliente usando a chave estática diretamente
-            OpenAIClient client = OpenAIOkHttpClient.builder()
-                .baseUrl(endpoint)
-                .credential(BearerTokenCredential.create("9OBmIJGnz8bnnN97jTuEZnjrUTJGyqy23KDb315YHEHWY0J98l53JQQJ99CFACBsN54XJ3w3AAAAACOGA85u"))
-                .build();
+        	String azureKey = System.getenv("AZURE_OPENAI_KEY");
 
+        	OpenAIClient client = OpenAIOkHttpClient.builder()
+        	    .baseUrl(endpoint)
+        	    .credential(BearerTokenCredential.create(azureKey))
+        	    .build();
             // 2. Configura a chamada usando o Builder do SDK
             ChatCompletionCreateParams createParams = ChatCompletionCreateParams.builder()
                 .model(ChatModel.of(deploymentName))
