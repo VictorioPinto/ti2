@@ -1,13 +1,17 @@
 package service;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonElement;
 import spark.Request;
 import spark.Response;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+
+// --- NOVOS IMPORTS DO SDK ---
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.ChatModel;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.credential.BearerTokenCredential;
 
 public class QuizService {
 	private dao.QuizDAO quizDAO = new dao.QuizDAO();
@@ -28,6 +32,7 @@ public class QuizService {
         response.status(200);
         return perguntas.toString();
     }
+    
     public Object cadastrar(Request request, Response response) {
         JsonObject dados = JsonParser.parseString(request.body()).getAsJsonObject();
         
@@ -41,60 +46,45 @@ public class QuizService {
             return "{\"success\": false}";
         }
     }
+    
     public Object avaliarRespostaAberta(Request request, Response response) {
         String perguntaDada = request.queryParams("pergunta");
         String respostaAluno = request.queryParams("resposta_aluno");
         
-        String githubToken = System.getenv("GITHUB_TOKEN");
-        if (githubToken == null || githubToken.trim().isEmpty()) {
-            githubToken = ""; 
-        }
+        String promptLimpo = ("Pergunta: " + perguntaDada + " | Resposta do aluno: " + respostaAluno).replace("\"", "\\\"");
         
-        String githubEndpoint = "https://models.inference.ai.azure.com/chat/completions";
-        
-        // Usamos um replace simples para evitar que aspas duplas na resposta do aluno quebrem o JSON da requisição
-        String promptLimpo = ("Pergunta: " + perguntaDada + " | Resposta do aluno: " + respostaAluno)
-                              .replace("\"", "\\\"");
-        
-        String corpoRequisicao = "{"
-            + "\"model\": \"gpt-4o-mini\","
-            + "\"messages\": ["
-            + "  {\"role\": \"system\", \"content\": \"Você é um professor de finanças. Avalie a resposta do aluno. Retorne APENAS um JSON estruturado com 'porcentagem' (int de 0 a 100) e 'feedback' (string com a correção ou dicas para 100%). Não use formatação markdown.\"},"
-            + "  {\"role\": \"user\", \"content\": \"" + promptLimpo + "\"}"
-            + "],"
-            + "\"temperature\": 0.2"
-            + "}";
+        String endpoint = "https://formularioia.services.ai.azure.com/openai/v1";
+        String deploymentName = "gpt-5.4-nano";
 
         try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest requisicaoIA = HttpRequest.newBuilder()
-                    .uri(URI.create(githubEndpoint))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + githubToken)
-                    .POST(HttpRequest.BodyPublishers.ofString(corpoRequisicao))
-                    .build();
-            HttpResponse<String> respostaIA = client.send(requisicaoIA, HttpResponse.BodyHandlers.ofString());
+            // 1. Inicializa o cliente do SDK
+            OpenAIClient client = OpenAIOkHttpClient.builder()
+                .baseUrl(endpoint)
+                .credential(BearerTokenCredential.create("9OBmIJGnz8bnnN97jTuEZnjrUTJGyqy23KDb315YHEHWY0J98l53JQQJ99CFACBsN54XJ3w3AAAAACOGA85u"))
+                .build();
+
+            // 2. Constrói as mensagens para o modelo
+            ChatCompletionCreateParams createParams = ChatCompletionCreateParams.builder()
+                .model(ChatModel.of(deploymentName))
+                .addSystemMessage("Você é um professor de finanças. Avalie a resposta do aluno. Retorne APENAS um JSON estruturado com 'porcentagem' (int de 0 a 100) e 'feedback' (string com a correção ou dicas para 100%). Não use formatação markdown.")
+                .addUserMessage(promptLimpo)
+                .build();
+
+            // 3. Executa a requisição nativa da OpenAI
+            ChatCompletion chatCompletion = client.chat().completions().create(createParams);
             
-            // ---> ADICIONE O PRINT EXATAMENTE AQUI <---
-            System.out.println("Resposta da API: " + respostaIA.body());
+            // 4. Lê a string retornada
+            String contentString = chatCompletion.choices().get(0).message().content().orElse("{}");
             
-            // 1. Converte a string de resposta da API do GitHub para um objeto JSON
-            JsonObject jsonResponse = JsonParser.parseString(respostaIA.body()).getAsJsonObject();
-            
-            // 2. Navega no JSON da IA para pegar a string de conteúdo gerada por ela
-            String contentString = jsonResponse.getAsJsonArray("choices")
-                                               .get(0).getAsJsonObject()
-                                               .getAsJsonObject("message")
-                                               .get("content").getAsString();
+            System.out.println("Resposta da API: " + contentString);
                                                
-            // 3. Converte a string que a IA gerou de volta para um objeto JSON (para pegar porcentagem e feedback)
+            // O resultado já vem limpo, passamos direto para o GSON
             JsonObject avaliacaoIA = JsonParser.parseString(contentString).getAsJsonObject();
             
             int porcentagem = avaliacaoIA.get("porcentagem").getAsInt();
             String feedback = avaliacaoIA.get("feedback").getAsString();
-            boolean aprovado = porcentagem >= 70; // Regra de aprovação que você definiu
+            boolean aprovado = porcentagem >= 70;
             
-            // 4. Monta a resposta final estruturada para o seu frontend usando Gson
             JsonObject resultadoFinal = new JsonObject();
             resultadoFinal.addProperty("success", true);
             resultadoFinal.addProperty("porcentagem", porcentagem);
@@ -112,6 +102,7 @@ public class QuizService {
             return "{\"success\": false, \"message\": \"Erro interno ao processar a avaliação com a IA.\"}";
         }
     }
+    
     public Object concluirQuiz(Request request, Response response) {
         Integer usuarioId = request.session().attribute("usuario_logado");
         int quizId = Integer.parseInt(request.params(":id"));
@@ -123,6 +114,7 @@ public class QuizService {
         response.status(200);
         return "{\"success\": true}";
     }
+    
     public Object atualizar(Request request, Response response) {
         int quizId;
         try {
@@ -142,7 +134,7 @@ public class QuizService {
             return "{\"success\": false}";
         }
     }
- // --- NOVO: ROTA PARA DELETAR QUIZ ---
+    
     public Object deletarQuiz(Request request, Response response) {
         int quizId;
         try {

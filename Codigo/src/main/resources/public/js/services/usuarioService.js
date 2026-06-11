@@ -29,5 +29,5 @@ export const usuarioService = {
   async logout() {
     const response = await fetch(`${API_URL}/logout`, { method: "POST" });
     return response;
-  }
+  },
 };

@@ -4,11 +4,15 @@ import dao.UsuarioDAO;
 import model.Usuario;
 import spark.Request;
 import spark.Response;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import org.mindrot.jbcrypt.BCrypt; 
+
+// --- NOVOS IMPORTS DO SDK ---
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.ChatModel;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.credential.BearerTokenCredential;
 
 public class UsuarioService {
 
@@ -16,45 +20,38 @@ public class UsuarioService {
     
     public Object avaliarDiagnostico(Request request, Response response) {
         String respostasJson = request.queryParams("respostas_json");
+        String respostasJsonLimpo = respostasJson.replace("\"", "\\\"");
 
-        String githubToken = System.getenv("GITHUB_TOKEN");
-        if (githubToken == null || githubToken.trim().isEmpty()) {
-            githubToken = ""; 
-        }
-        
-        String githubEndpoint = "https://models.inference.ai.azure.com/chat/completions";
-        String modelo = "gpt-4o-mini";
-
-        String corpoRequisicao = "{"
-            + "\"model\": \"" + modelo + "\","
-            + "\"messages\": ["
-            + "  {\"role\": \"system\", \"content\": \"Você é um analista financeiro. Avalie as respostas de investimentos do usuário e retorne APENAS um número inteiro de 1 a 3 (1=Iniciante, 2=Intermediário, 3=Avançado). Não escreva mais nenhuma palavra além do número.\"},"
-            + "  {\"role\": \"user\", \"content\": " + respostasJson + "}"
-            + "],"
-            + "\"max_tokens\": 5,"
-            + "\"temperature\": 0.1" 
-            + "}";
+        String endpoint = "https://formularioia.services.ai.azure.com/openai/v1";
+        String deploymentName = "gpt-5.4-nano";
 
         try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest requisicaoIA = HttpRequest.newBuilder()
-                    .uri(URI.create(githubEndpoint))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + githubToken)
-                    .POST(HttpRequest.BodyPublishers.ofString(corpoRequisicao))
-                    .build();
+            // 1. Inicializa o cliente usando a chave estática diretamente
+            OpenAIClient client = OpenAIOkHttpClient.builder()
+                .baseUrl(endpoint)
+                .credential(BearerTokenCredential.create("9OBmIJGnz8bnnN97jTuEZnjrUTJGyqy23KDb315YHEHWY0J98l53JQQJ99CFACBsN54XJ3w3AAAAACOGA85u"))
+                .build();
 
-            HttpResponse<String> respostaIA = client.send(requisicaoIA, HttpResponse.BodyHandlers.ofString());
-            String corpoResposta = respostaIA.body();
+            // 2. Configura a chamada usando o Builder do SDK
+            ChatCompletionCreateParams createParams = ChatCompletionCreateParams.builder()
+                .model(ChatModel.of(deploymentName))
+                .addSystemMessage("Você é um analista financeiro. Avalie as respostas de investimentos do usuário e retorne APENAS um número inteiro de 1 a 3 (1=Iniciante, 2=Intermediário, 3=Avançado). Não escreva mais nenhuma palavra além do número.")
+                .addUserMessage("Aqui estão as respostas: " + respostasJsonLimpo)
+                .build();
+
+            // 3. Executa a chamada
+            ChatCompletion chatCompletion = client.chat().completions().create(createParams);
             
+            // 4. Extrai a resposta de forma nativa
+            String corpoResposta = chatCompletion.choices().get(0).message().content().orElse("");
+
             int nivelSugerido = 1; 
-            if (corpoResposta.contains("\"content\":\"2\"") || corpoResposta.contains("\"content\": \"2\"")) {
+            if (corpoResposta.contains("2")) {
                 nivelSugerido = 2;
-            } else if (corpoResposta.contains("\"content\":\"3\"") || corpoResposta.contains("\"content\": \"3\"")) {
+            } else if (corpoResposta.contains("3")) {
                 nivelSugerido = 3;
             }
 
-            
             Integer usuarioId = request.session().attribute("usuario_logado");
             if (usuarioId != null) {
                 usuarioDAO.salvarQuestionario(usuarioId, respostasJson, nivelSugerido);
@@ -70,9 +67,10 @@ public class UsuarioService {
         } catch (Exception e) {
             System.err.println("Erro ao chamar IA: " + e.getMessage());
             response.status(500);
-            return "{\"success\": false, \"message\": \"Erro ao procesAsar o diagnóstico com a IA.\"}";
+            return "{\"success\": false, \"message\": \"Erro ao processar o diagnóstico com a IA.\"}";
         }
     }
+
 
     public Object insert(Request request, Response response) {
         String login = request.queryParams("login");
@@ -89,6 +87,7 @@ public class UsuarioService {
             return "Erro ao registrar usuário.";
         }
     }
+    
     public Object listar(Request request, Response response) {
         response.type("application/json");
         return "[{\"message\": \"Lista de Usuarios\"}]";
@@ -131,22 +130,16 @@ public class UsuarioService {
             }
         }
         
-        
         response.status(401); 
         return "{\"logged\": false}";
     }
 
-    
     public Object logout(Request request, Response response) {
         response.type("application/json");
-        
-      
         request.session().invalidate();
-        
         response.status(200);
         return "{\"success\": true}";
     }
-    
     
     public Object get(Request request, Response response) {
         int id = Integer.parseInt(request.params(":id"));
@@ -160,5 +153,4 @@ public class UsuarioService {
             return "Usuário não encontrado.";
         }
     }
-    
 }
